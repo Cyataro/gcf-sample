@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "eslint": "*",
+    "intelli-espower-loader": "*",
+    "lodash": "*",
+    "mocha": "*",
+    "mustache": "*",
+    "power-assert": "*",
+    "sinon": "*",
+    "watchify": "*"
+  },
+  "scripts": {
+    "lint": "eslint -c .eslintrc.prebuild.json javascripts/",
+    "lint-ci": "eslint -c .eslintrc.afterbuild.json src/uploader.js",
+    "test": "mocha --require intelli-espower-loader --require babel-register --recursive test"
+  }
+}
