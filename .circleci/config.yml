@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: google/cloud-sdk
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+        name: Store Service Account
+        command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run: 
+        name: Setup Auth
+        command: sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+      - run: 
+        name: Setup Project
+        command: sudo gcloud --quiet config set project "$GOOGLE_PROJECT_ID"
+      - run: 
+        name: Funcitons Dployment
+        command: sudo gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME"
