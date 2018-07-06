@@ -2,10 +2,33 @@ version: 2
 jobs:
   build:
     docker:
-      - image: google/cloud-sdk
+      - image: circleci/node:6.14.3-browsers
     working_directory: ~/repo
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            # when lock file changes, use increasingly general patterns to restore cache
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
+      - run:
+          name: System information
+          command: |
+            echo "Node $(node -v)"
+            echo "Yarn v$(yarn --version)"
+      - run:
+          name: Install dependencies
+          command: yarn
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+  deploy:
+    docker:
+      - image: google/cloud-sdk
+    working_directory: ~/repo
+    steps:
       - run:
           name: Store Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
@@ -17,4 +40,10 @@ jobs:
           command: gcloud --quiet config set project "$GOOGLE_PROJECT_ID"
       - run: 
           name: Funcitons Dployment
-          command: gcloud beta functions deploy --source ./src "$GOOGLE_CLOUD_FUNCTION_NAME"
+          command: gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME" --source "$GOOGLE_CLOUD_FUNCTIONS_REPO"/moveable-aliases/"$CIRCLE_BRANCH"/paths/src
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy
