@@ -33,4 +33,5 @@ exports.sampleStorageDownload = functions.storage.object().onFinalize((object) =
     console.log(`bucket: ${bucket}`);
     console.log(`file: ${file}`);
 
+    console.log(file.download());
   });
