@@ -17,4 +17,4 @@ jobs:
           command: gcloud --quiet config set project "$GOOGLE_PROJECT_ID"
       - run: 
           name: Funcitons Dployment
-          command: gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME"
+          command: gcloud beta functions deploy --source ./src "$GOOGLE_CLOUD_FUNCTION_NAME"
