@@ -40,7 +40,7 @@ jobs:
           command: gcloud --quiet config set project "$GOOGLE_PROJECT_ID"
       - run: 
           name: Funcitons Dployment
-          command: gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME" --source "$GOOGLE_CLOUD_FUNCTIONS_REPO"/moveable-aliases/"$CIRCLE_BRANCH"/paths/src
+          command: gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME" --trigger-resource "$GOOGLE_CLOUD_STORAGE_NAME" --trigger-event google.storage.object.finalize
 workflows:
   version: 2
   build-deploy:
