@@ -16,22 +16,26 @@ const os = require('os');
 const fs = require('fs');
 // [END import]
 
-exports.sampleStorageDownload = functions.storage.object().onFinalize((object) => {
-    // [START eventAttributes]
-    const fileBucket = object.bucket; // The Storage bucket that contains the file.
-    const filePath = object.name; // File path in the bucket.
-    const contentType = object.contentType; // File content type.
-    // [END eventAttributes]
+exports.subscribe = (event, callback) => {
+  const file = event.data;
 
-    const bucket = gcs.bucket(object.bucket);
-    const file = bucket.file(filePath);
+  if (file.resourceState === 'not_exists') {
+    console.log('File ' + file.name + ' not_exists.');
+    callback();
+    return;
+  } else {
+    if (file.metageneration === '1') {
+      const bucket = gcs.bucket(file.bucket);
+      const file = bucket.file(file.name);
+      console.log(`bucket: ${bucket}`);
+      console.log(`file: ${file}`);
+      //test
+      console.log(file.download());
 
-    console.log(`object: ${object}`);
-    console.log(`fileBucket: ${fileBucket}`);
-    console.log(`filePath: ${filePath}`);
-    console.log(`contentType: ${contentType}`);
-    console.log(`bucket: ${bucket}`);
-    console.log(`file: ${file}`);
-    //test
-    console.log(file.download());
-  });
+    } else {
+      console.log('File + ' + file.name + ' metadata updated.');
+      callback();
+      return
+    }
+  }
+}
