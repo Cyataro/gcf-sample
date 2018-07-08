@@ -29,6 +29,7 @@ jobs:
       - image: google/cloud-sdk
     working_directory: ~/repo
     steps:
+      - checkout
       - run:
           name: Store Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
@@ -40,10 +41,12 @@ jobs:
           command: gcloud --quiet config set project "$GOOGLE_PROJECT_ID"
       - run: 
           name: Funcitons Dployment
-          command: gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME" --trigger-resource "$GOOGLE_CLOUD_STORAGE_NAME" --trigger-event google.storage.object.finalize
+          command: gcloud beta functions deploy "$GOOGLE_CLOUD_FUNCTION_NAME" --trigger-resource="$GOOGLE_CLOUD_STORAGE_NAME" --trigger-event=google.storage.object.finalize --stage-bucket="$GOOGLE_CLOUD_STAGE_BUCKET"
 workflows:
   version: 2
   build-deploy:
     jobs:
       - build
-      - deploy
+      - deploy:
+          requires:
+            - build
