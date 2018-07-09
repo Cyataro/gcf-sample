@@ -26,11 +26,11 @@ exports.subscribe = (event, callback) => {
   } else {
     if (file.metageneration === '1') {
       const bucket = gcs.bucket(file.bucket);
-      const file = bucket.file(file.name);
+      const bucketFile = bucket.file(file.name);
       console.log(`bucket: ${bucket}`);
-      console.log(`file: ${file}`);
+      console.log(`file: ${bucketFile}`);
       //test
-      console.log(file.download());
+      console.log(bucketFile.download());
 
     } else {
       console.log('File + ' + file.name + ' metadata updated.');
