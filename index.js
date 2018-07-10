@@ -56,7 +56,7 @@ exports.subscribe = (event, callback) => {
     return;
   } else {
     if (file.metageneration === '1') {
-      const destFile = `/temp/${bucketFile}`;
+      const destFile = `/temp/${file.name}`;
 
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
