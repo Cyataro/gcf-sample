@@ -36,10 +36,8 @@ function downloadFile(bucketName, srcFilename, destFilename) {
             .file(srcFilename)
             .download(options)
             .then(() => {
-              console.log(
-                `gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`
-              );
-              return destFilename;
+              console.log(`gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`);
+              return fs.open(destFilename);
             })
             .catch(err => {
               console.error('ERROR:', err);
