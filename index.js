@@ -16,6 +16,37 @@ const os = require('os');
 const fs = require('fs');
 // [END import]
 
+/**
+ * download storage to dest
+ * @param {string} bucketName
+ * @param {string} srcFilename
+ * @param {string} destFilename
+ * @return {Object}
+ */
+function downloadFile(bucketName, srcFilename, destFilename) {
+  const Storage = require('@google-cloud/storage');
+  const storage = new Storage();
+
+  const options = {
+    destination: destFilename,
+  };
+
+  return  storage
+            .bucket(bucketName)
+            .file(srcFilename)
+            .download(options)
+            .then(() => {
+              console.log(
+                `gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`
+              );
+              return destFilename;
+            })
+            .catch(err => {
+              console.error('ERROR:', err);
+            });
+}
+
+
 exports.subscribe = (event, callback) => {
   const file = event.data;
 
@@ -27,10 +58,11 @@ exports.subscribe = (event, callback) => {
     if (file.metageneration === '1') {
       const bucket = gcs.bucket(file.bucket);
       const bucketFile = bucket.file(file.name);
+
       console.log(`bucket: ${bucket}`);
       console.log(`file: ${bucketFile}`);
       //test
-      console.log(bucketFile.download());
+      console.log(downloadFile(bucket, bucketFile, ['/temp/', bucketFile].join('')));
 
     } else {
       console.log('File + ' + file.name + ' metadata updated.');
