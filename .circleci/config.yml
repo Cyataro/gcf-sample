@@ -36,6 +36,8 @@ jobs:
       - run:
           name: Commit Keyfile
           command: |
+            git config user.name  circle
+            git config user.email circle@example.com
             git add gcloud-service-key.json
             git commit -m 'add gcloud service key'
       - run: 
