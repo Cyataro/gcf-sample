@@ -25,7 +25,7 @@ const fs = require('fs');
  */
 function downloadFile(bucketName, srcFilename, destFilename) {
   const Storage = require('@google-cloud/storage');
-  const storage = new Storage();
+  const storage = new Storage({keyfile: 'gcloud-service-key.json'});
 
   const options = {
     destination: destFilename,
@@ -56,13 +56,12 @@ exports.subscribe = (event, callback) => {
     return;
   } else {
     if (file.metageneration === '1') {
-      const bucket = gcs.bucket(file.bucket);
-      const bucketFile = bucket.file(file.name);
+      const destFile = `/temp/${bucketFile}`;
 
-      console.log(`bucket: ${bucket}`);
-      console.log(`file: ${bucketFile}`);
+      console.log(`bucket: ${file.bucket}`);
+      console.log(`file: ${file.name}`);
       //test
-      console.log(downloadFile(bucket, bucketFile, ['/temp/', bucketFile].join('')));
+      console.log(downloadFile(file.bucket, file.name, destFile));
 
     } else {
       console.log('File + ' + file.name + ' metadata updated.');
