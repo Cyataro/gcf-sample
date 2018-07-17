@@ -138,13 +138,13 @@ function rePackage(conversion) {
 
   //reserve date
   if (conversion.contents.prefered_date !== 'undefiend') {
-    repack.reserved_date_01 = { value: [conversion.contents.prefered_date, conversion.contents.prefered_time].filter(funciton( v => v !== "")).join('T')}
+    repack.reserved_date_01 = { value: [conversion.contents.prefered_date, conversion.contents.prefered_time].filter(function(v){ return v !== ""}).join('T')}
   }
   if (conversion.contents.prefered_date1 !== 'undefiend') {
-    repack.reserved_date_01 = { value: [conversion.contents.prefered_date1, conversion.contents.prefered_time1].filter(funciton( v => v !== "")).join('T')}
+    repack.reserved_date_01 = { value: [conversion.contents.prefered_date1, conversion.contents.prefered_time1].filter(function(v){ return v !== ""}).join('T')}
   }
   if (conversion.contents.prefered_date2 !== 'undefiend') {
-    repack.reserved_date_02 = { value: [conversion.contents.prefered_date2, conversion.contents.prefered_time2].filter(funciton( v => v !== "")).join('T')}
+    repack.reserved_date_02 = { value: [conversion.contents.prefered_date2, conversion.contents.prefered_time2].filter(function(v){ return v !== ""}).join('T')}
   }
 
   //reserve company
