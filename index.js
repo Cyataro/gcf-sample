@@ -50,13 +50,13 @@ function downloadFile(bucketName, srcFilename, destFilename) {
  * @return {Object}
  */
 function rePackage(contents) {
-  let rePackage = contents;
+  let a = contents;
   if(typeof contents.contents.companies !== 'undefined') {
     for (i in contents.contents.companies) {
       console.log(contents.contents.companies[i]);
     }
   }
-  return rePackage;
+  return a;
 }
 
 /**
