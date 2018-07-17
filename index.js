@@ -65,13 +65,19 @@ function ship(contents) {
   console.log(packageK)
 }
 
+/**
+ * @param {String} message
+ */
+function error_notification(message) {
+  console.log(text)
+}
+
 exports.subscribe = (event, callback) => {
   const file = event.data;
 
   if (file.resourceState === 'not_exists') {
-    console.log('File ' + file.name + ' not_exists.');
-    callback();
-    return;
+    error_notification('File ' + file.name + ' not_exists.');
+    return callback;
   } else {
     if (file.metageneration === '1') {
       const destFile = `/temp/${file.name}`;
@@ -79,12 +85,11 @@ exports.subscribe = (event, callback) => {
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
       //test
-      console.log(downloadFile(file.bucket, file.name, destFile));
+      downloadFile(file.bucket, file.name, destFile);
 
     } else {
-      console.log('File + ' + file.name + ' metadata updated.');
-      callback();
-      return
+      error_notification('File ' + file.name + ' metadata updated.');
+      return callback;
     }
   }
 }
