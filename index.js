@@ -33,6 +33,10 @@ function downloadFile(bucketName, srcFilename, destFilename) {
             .download()
             .then((contents) => {
               const data = contents[0];
+              console.log("===contents===");
+              console.log(contents);
+              console.log("===data===");
+              console.log(data);
               return ship(data);
             })
             .catch(err => {
