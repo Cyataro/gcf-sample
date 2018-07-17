@@ -111,7 +111,7 @@ function toCategoryName(category) {
  */
 function toPrefName(prefCode) {
   let prefs = {};
-  for(pref of transpose([prefCodes, prefNames])){
+  for(const pref of transpose([prefCodes, prefNames])){
     prefs[pref[0]] = pref[1];
   }
 
