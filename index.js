@@ -32,7 +32,8 @@ function downloadFile(bucketName, srcFilename, destFilename) {
             .file(srcFilename)
             .download()
             .then((contents) => {
-              return ship(contents);
+              const data = contents[0];
+              return ship(data);
             })
             .catch(err => {
               console.error('ERROR:', err);
@@ -60,6 +61,7 @@ function rePackage(contents) {
  * @return {Object}
  */
 function ship(contents) {
+  console.log('=== kitayo ====')
   let packageK = rePackage(contents)
 
   console.log(packageK)
