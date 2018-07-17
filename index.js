@@ -27,24 +27,43 @@ function downloadFile(bucketName, srcFilename, destFilename) {
   const Storage = require('@google-cloud/storage');
   const storage = new Storage({keyfile: 'gcloud-service-key.json'});
 
-  const options = {
-    destination: destFilename,
-  };
-
   return  storage
             .bucket(bucketName)
             .file(srcFilename)
-            .download(options)
-            .then(() => {
-              console.log(`gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`);
-              console.log(fs.open(destFilename));
-              return true;
+            .download()
+            .then((contents) => {
+              return ship(contents);
             })
             .catch(err => {
               console.error('ERROR:', err);
             });
 }
 
+/**
+ * ship to other
+ * @param {Json} contents
+ * @return {Object}
+ */
+function rePackage(contents) {
+  let rePackage = contents;
+  if(typeof contents.companies !== 'undefined') {
+    for (i in contents.companies) {
+      console.log(contents.companies[i]);
+    }
+  }
+  return rePackage;
+}
+
+/**
+ * ship to other
+ * @param {Json} contents
+ * @return {Object}
+ */
+function ship(contents) {
+  let packageK = rePackage(contents)
+
+  console.log(packageK)
+}
 
 exports.subscribe = (event, callback) => {
   const file = event.data;
