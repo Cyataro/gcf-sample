@@ -34,10 +34,10 @@ function downloadFile(bucketName, srcFilename, destFilename) {
             .then(contents => {
               const data = contents[0];
               console.log("===contents===");
-              console.log(contents);
+              console.log(JSON.parse(contents));
               console.log("===data===");
-              console.log(data);
-              return ship(data);
+              console.log(JSON.parse(data));
+              return ship(JSON.parse(data));
             })
             .catch(err => {
               console.error('ERROR:', err);
