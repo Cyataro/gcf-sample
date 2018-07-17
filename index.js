@@ -51,10 +51,13 @@ function downloadFile(bucketName, srcFilename, destFilename) {
  */
 function rePackage(contents) {
   let a = contents;
+  console.log(contents.contents);
   if(typeof contents.contents.companies !== 'undefined') {
     for (i in contents.contents.companies) {
       console.log(contents.contents.companies[i]);
     }
+  } else {
+    console.log("undefined companies!!!");
   }
   return a;
 }
