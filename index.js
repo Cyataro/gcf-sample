@@ -31,7 +31,7 @@ function downloadFile(bucketName, srcFilename, destFilename) {
             .bucket(bucketName)
             .file(srcFilename)
             .download()
-            .then((contents) => {
+            .then(contents => {
               const data = contents[0];
               console.log("===contents===");
               console.log(contents);
