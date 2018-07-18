@@ -7,15 +7,6 @@
 
 'use strict';
 
-// [START import]
-const functions = require('firebase-functions');
-const gcs = require('@google-cloud/storage')();
-const spawn = require('child-process-promise').spawn;
-const path = require('path');
-const os = require('os');
-const fs = require('fs');
-// [END import]
-
 const categories = {
   RequestsOfCatalog: "資料請求メール",
   EventReserve:      "イベント予約",
@@ -368,7 +359,6 @@ function downloadFile(bucketName, srcFilename, destFilename) {
  */
 function rePackage(conversion) {
   let repack = {};
-  console.log("===sottijanaiyo===")
 
   for (const field of kintoneFields) {
     const contents = conversionContents[toLowerCamalCase('get_' + field)](conversion);
@@ -387,7 +377,6 @@ function rePackage(conversion) {
  */
 function kintoneUploader(conversion) {
   const kintone = require('kintone-nodejs-sdk');
-  console.log("===kokodayo===")
 
   const packedConversion = rePackage(conversion)
 
