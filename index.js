@@ -211,6 +211,8 @@ function ship(conversion) {
 
   console.log("===repack conversions===")
   console.log(packedConversion)
+  console.log("===repack conversions to json===")
+  console.log(JSON.stringify(packedConversion))
   console.log("===enviroment variables===")
   console.log(global.process.env.KINTONE_API_KEY)
   console.log(global.process.env.KINTONE_APP_ID)
