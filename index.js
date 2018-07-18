@@ -148,7 +148,7 @@ const getConversionContents = {
     if (typeof c.tag.category === 'undefined') {
       return undefined;
     }
-    return toCategoryName(conversion.tag.category);
+    return toCategoryName(c.tag.category);
   },
   /**
    * @param {Object} c
