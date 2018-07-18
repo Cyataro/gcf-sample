@@ -13,7 +13,7 @@ const categories = {
   ModelHouseReserve: "モデルハウス予約"
 }
 
-const monitors = monitor => {
+const monitors = (monitor) => {
   switch (monitor) {
     case "読者モニターになる":
       return "可";
@@ -24,11 +24,39 @@ const monitors = monitor => {
   }
 }
 
+/**
+ * @param {String} message
+ */
+const error_notification = (message) => console.log(message);
+
+/**
+ * @param {String} str
+ * @return {String}
+ */
 const toLowerCamalCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUpperCase());
+/**
+ * @param {String} date
+ * @param {String} time
+ * @return {String}
+ */
 const formatDateTime   = (date,time) => [date, time].filter(function(v){ return v !== ""}).join('T');
+/**
+ * @param {Object} data
+ * @return {Object} or undefined
+ */
 const existy           = (data) => typeof data !== 'undefined' ? data : undefined;
+/**
+ * @param {Array} a
+ * @return {Array}
+ */
 const transpose = (a) => a[0].map((_, c) => a.map(r => r[c]));
+/**
+ * @return {Array}
+ */
 const prefCodes = Array.from(new Array(47)).map((v,i)=> ('00' + (i + 1)).slice(-2))
+/**
+ * @return {Array}
+ */
 const prefNames = [
   "北海道",
   "青森県",
@@ -83,15 +111,13 @@ const prefNames = [
  * @param {String} category
  * @return {String}
  */
-function toCategoryName(category) {
-  return categories[category];
-}
+const toCategoryName = (category) => categories[category];
 
 /**
  * @param {String} prefCode
  * @return {String}
  */
-function toPrefName(prefCode) {
+const toPrefName = (prefCode) => {
   let prefs = {};
   for(const pref of transpose([prefCodes, prefNames])){
     prefs[pref[0]] = pref[1];
@@ -104,7 +130,7 @@ function toPrefName(prefCode) {
  * @param {Array} companies
  * @return {Array}
  */
-function companyTable(companies) {
+const companyTable = (companies) => {
   let c = [];
   for (const company of companies) {
     c.push({ value: {
@@ -336,7 +362,7 @@ const kintoneFields = [
  * @param {string} destFilename
  * @return {Object}
  */
-function downloadFile(bucketName, srcFilename, destFilename) {
+const downloadFile = (bucketName, srcFilename, destFilename) => {
   const Storage = require('@google-cloud/storage');
   const storage = new Storage({keyfile: 'gcloud-service-key.json'});
 
@@ -357,7 +383,7 @@ function downloadFile(bucketName, srcFilename, destFilename) {
  * @param {Json} conversion
  * @return {Hash}
  */
-function rePackage(conversion) {
+const rePackage = (conversion) => {
   let repack = {};
 
   for (const field of kintoneFields) {
@@ -375,7 +401,7 @@ function rePackage(conversion) {
  * @param {Json} conversion
  * @return {Object}
  */
-function kintoneUploader(conversion) {
+const kintoneUploader = (conversion) => {
   const kintone = require('kintone-nodejs-sdk');
 
   const packedConversion = rePackage(conversion)
@@ -397,13 +423,6 @@ function kintoneUploader(conversion) {
         // This SDK return err with KintoneAPIExeption
         console.log(err.get());
     });
-}
-
-/**
- * @param {String} message
- */
-function error_notification(message) {
-  console.log(message);
 }
 
 exports.subscribe = (event, callback) => {
