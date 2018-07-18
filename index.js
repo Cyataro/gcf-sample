@@ -152,15 +152,12 @@ function rePackage(conversion) {
 
   //reserve date
   if (typeof conversion.contents.prefered_date !== 'undefined') {
-    console.log(conversion.contents.prefered_date);
     repack.reserved_date_01 = { value: [conversion.contents.prefered_date, conversion.contents.prefered_time].filter(function(v){ return v !== ""}).join('T')}
   }
   if (typeof conversion.contents.prefered_date1 !== 'undefined') {
-    console.log(conversion.contents.prefered_date1);
     repack.reserved_date_01 = { value: [conversion.contents.prefered_date1, conversion.contents.prefered_time1].filter(function(v){ return v !== ""}).join('T')}
   }
   if (typeof conversion.contents.prefered_date2 !== 'undefined') {
-    console.log(conversion.contents.prefered_date2);
     repack.reserved_date_02 = { value: [conversion.contents.prefered_date2, conversion.contents.prefered_time2].filter(function(v){ return v !== ""}).join('T')}
   }
 
