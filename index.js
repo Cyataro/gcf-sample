@@ -201,8 +201,8 @@ function rePackage(conversion) {
     repack.question_pref_for_build = { value: catalog_enquete.pref_for_build };
     repack.question_schedule       = { value: catalog_enquete.schedule };
     repack.question_budget         = { value: catalog_enquete.badget };
-    repack.question_status         = { value: catalog_enquete.status };
-    repack.question_questions      = { value: catalog_enquete.questions };
+    repack.question_status         = { value: [catalog_enquete.status] };
+    repack.question_questions      = { value: catalog_enquete.questions.split(',') };
   }
 
   //common enquete
