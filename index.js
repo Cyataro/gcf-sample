@@ -205,10 +205,12 @@ function rePackage(conversion) {
  * @return {Object}
  */
 function ship(conversion) {
-  console.log('=== kitayo ====')
   const packedConversion = rePackage(conversion)
 
   console.log(packedConversion)
+  console.log("===enviroment variables===")
+  console.log(global.process.env.KINTONE_API_KEY)
+
 }
 
 /**
