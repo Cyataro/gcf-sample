@@ -22,6 +22,17 @@ const categories = {
   ModelHouseReserve: "モデルハウス予約"
 }
 
+const monitors = monitor => {
+  switch (monitor) {
+    case "読者モニターになる":
+      return "可";
+    case "読者モニターにならない":
+      return "不可";
+    default:
+      return "無回答";
+  }
+}
+
 const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
 const prefCodes = Array.from(new Array(47)).map((v,i)=> ('00' + (i + 1)).slice(-2))
 const prefNames = [
@@ -193,7 +204,7 @@ function rePackage(conversion) {
 
   //common enquete
   if(typeof conversion.contents.enq_coop !== 'undefined') {
-    repack.question_monitor = { value: conversion.contents.enq_coop };
+    repack.question_monitor = { value: monitors(conversion.contents.enq_coop) };
   }
 
   return repack;
