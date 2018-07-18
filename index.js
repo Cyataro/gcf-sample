@@ -137,13 +137,13 @@ function rePackage(conversion) {
   };
 
   //reserve date
-  if (conversion.contents.prefered_date !== 'undefiend') {
+  if (conversion.contents.prefered_date !== 'undefined') {
     repack.reserved_date_01 = { value: [conversion.contents.prefered_date, conversion.contents.prefered_time].filter(function(v){ return v !== ""}).join('T')}
   }
-  if (conversion.contents.prefered_date1 !== 'undefiend') {
+  if (conversion.contents.prefered_date1 !== 'undefined') {
     repack.reserved_date_01 = { value: [conversion.contents.prefered_date1, conversion.contents.prefered_time1].filter(function(v){ return v !== ""}).join('T')}
   }
-  if (conversion.contents.prefered_date2 !== 'undefiend') {
+  if (conversion.contents.prefered_date2 !== 'undefined') {
     repack.reserved_date_02 = { value: [conversion.contents.prefered_date2, conversion.contents.prefered_time2].filter(function(v){ return v !== ""}).join('T')}
   }
 
