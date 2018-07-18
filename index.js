@@ -366,6 +366,7 @@ function downloadFile(bucketName, srcFilename, destFilename) {
  */
 function rePackage(conversion) {
   let repack = {};
+  console.log("===sottijanaiyo===")
 
   for (const f of kintoneFields) {
     const func = toLowerCamalCase('get_' + f);
@@ -386,6 +387,7 @@ function rePackage(conversion) {
  */
 function kintoneUploader(conversion) {
   const kintone = require('kintone-nodejs-sdk');
+  console.log("===kokodayo===")
 
   const packedConversion = rePackage(conversion)
 
