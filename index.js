@@ -17,7 +17,7 @@ const fs = require('fs');
 // [END import]
 
 const categories = {
-  RequestsOfCatalog: "資料請求",
+  RequestsOfCatalog: "資料請求メール",
   EventReserve:      "イベント予約",
   ModelHouseReserve: "モデルハウス予約"
 }
