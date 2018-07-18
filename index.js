@@ -147,6 +147,9 @@ function rePackage(conversion) {
     user_email:    { value: conversion.contents.email }
   };
 
+  //kana
+  repack.user_kana = { value: (conversion.contents.kana || conversion.contents.yomigana) }
+
   //reserve date
   if (conversion.contents.prefered_date !== 'undefined') {
     repack.reserved_date_01 = { value: [conversion.contents.prefered_date, conversion.contents.prefered_time].filter(function(v){ return v !== ""}).join('T')}
