@@ -229,7 +229,7 @@ function ship(conversion) {
     })
     .catch((err) => {
         // This SDK return err with KintoneAPIExeption
-        console.log(err);
+        console.log(err.get());
     });
 }
 
@@ -237,7 +237,7 @@ function ship(conversion) {
  * @param {String} message
  */
 function error_notification(message) {
-  console.log(text)
+  console.log(message);
 }
 
 exports.subscribe = (event, callback) => {
