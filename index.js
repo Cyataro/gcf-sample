@@ -129,7 +129,7 @@ const getConversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getConversionId: (c) => { existy(c.tag.conversion_id);},
+  getConversionId: (c) => {return existy(c.tag.conversion_id);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -282,7 +282,7 @@ const getConversionContents = {
    * @return {String} or undefined
    */
   getQuestionStatus: (c) => {
-    if (typeof c.contents.status === 'undefined') {
+    if (typeof c.contents.status === 'undefined' && c.contents.status === '') {
       return undefined;
     }
     return [c.contents.status];
@@ -309,7 +309,9 @@ const getConversionContents = {
   }
 }
 
-//[field code, type]
+/**
+ * kintone field code list
+ */
 const kintoneFields = [
   "conversion_id",
   "request_date",
