@@ -368,7 +368,9 @@ function rePackage(conversion) {
   let repack = {};
 
   for (const f of kintoneFields) {
-    const contents = getConversionContents[toLowerCamalCase('get_' + f)](conversion);
+    const func = toLowerCamalCase('get_' + f);
+    console.log(func)
+    const contents = getConversionContents[func](conversion);
     if (typeof contents !== 'undefined'){
       repack[f] = {value: contents};
     }
@@ -379,7 +381,7 @@ function rePackage(conversion) {
 
 /**
  * ship to other
- * @param {Json} contents
+ * @param {Json} conversion
  * @return {Object}
  */
 function kintoneUploader(conversion) {
