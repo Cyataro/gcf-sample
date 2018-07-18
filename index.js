@@ -282,7 +282,7 @@ const getConversionContents = {
    * @return {String} or undefined
    */
   getQuestionStatus: (c) => {
-    if (typeof c.contents.status === 'undefined' && c.contents.status === '') {
+    if (typeof c.contents.status === 'undefined' || c.contents.status === '') {
       return undefined;
     }
     return [c.contents.status];
