@@ -125,95 +125,95 @@ function companyTable(companies) {
 }
 
 const getConversionContents = {
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getConversionId: (c) => { existy(c.tag.conversion_id);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getRequestDate: (c) => {
     if (typeof c.tag.request_date === 'undefined') {
       return undefined;
     }
     return c.tag.request_date.split('T')[0];
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getRequestType: (c) => {
     if (typeof c.tag.category === 'undefined') {
       return undefined;
     }
     return toCategoryName(conversion.tag.category);
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getConfirmId: (c) => { return existy(c.tag.confirm_id);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getUserName: (c) => { return existy(c.contents.name);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getUserKana: (c) => { return existy(c.contents.kana || c.contents.yomigana);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getUserZipCode: (c) => { return existy(c.contents.zip);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getUserAddress: (c) => {
     if (typeof c.contents.pref === 'undefined' && typeof c.contents.addr === 'undefined') {
       return undefined;
     }
     return `${toPrefName(c.contents.pref)}${c.contents.addr}`;
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getUserTel: (c) => {return existy(c.contents.tel);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getUserEmail: (c) => {return existy(c.contents.email);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getReservedDate01: (c) => {
     if (typeof c.contents.prefered_date === 'undefined' && typeof c.contents.prefered_date1 === 'undefined') {
       return undefined;
     }
     return formatDateTime((c.contents.prefered_date || c.contents.prefered_date1), (c.contents.prefered_time || c.contents.prefered_time1));
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getReservedDate02: (c) => {
     if (typeof c.contents.prefered_date2 === 'undefined') {
       return undefined;
     }
     return formatDateTime(c.contents.prefered_date2, c.contents.prefered_time2);
   },
-/**
- * @param {Object} c
- * @return {Array} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {Array} or undefined
+   */
   getCompany: (c) => {
     if (typeof c.contents.company === 'undefined' && typeof c.contents.companies === 'undefined') {
       return undefined;
@@ -223,10 +223,10 @@ const getConversionContents = {
       return companyTable([c.contents.company]);
     }
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getEventAddress: (c) => {
     if (typeof c.contents.event === 'undefined' && typeof c.contents.model_house === 'undefined') {
       return undefined;
@@ -234,20 +234,20 @@ const getConversionContents = {
     const e = c.contents.event || c.contents.model_house;
     return e.addr;
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getEventCompanyName: (c) => {
     if (typeof c.contents.company === 'undefined') {
       return undefined;
     }
     return c.contents.company.name;
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getEventName: (c) => {
     if (typeof c.contents.event === 'undefined' && typeof c.contents.model_house === 'undefined') {
       return undefined;
@@ -257,50 +257,50 @@ const getConversionContents = {
       return c.contents.event.prmword;
     }
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionPlan: (c) => {return existy(c.contents.plan);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionPrefForBuild: (c) => {return existy(c.contents.pref_for_build);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionSchedule: (c) => {return existy(c.contents.schedule);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionBudget: (c) => {return existy(c.contents.budget);},
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionStatus: (c) => {
     if (typeof c.contents.status === 'undefined') {
       return undefined;
     }
     return [c.contents.status];
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionQuestions: (c) => {
     if (typeof c.contents.questions === 'undefined') {
       return undefined;
     }
     return c.contents.questions.split(',');
   },
-/**
- * @param {Object} c
- * @return {String} or undefined
- */
+  /**
+   * @param {Object} c
+   * @return {String} or undefined
+   */
   getQuestionMonitor: (c) => {
     if (typeof c.contents.enq_coop === 'undefined') {
       return undefined;
