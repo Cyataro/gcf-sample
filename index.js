@@ -124,7 +124,7 @@ function companyTable(companies) {
   return c; 
 }
 
-const getConversionContents = {
+const conversionContents = {
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -370,12 +370,10 @@ function rePackage(conversion) {
   let repack = {};
   console.log("===sottijanaiyo===")
 
-  for (const f of kintoneFields) {
-    const func = toLowerCamalCase('get_' + f);
-    console.log(func)
-    const contents = getConversionContents[func](conversion);
+  for (const field of kintoneFields) {
+    const contents = conversionContents[toLowerCamalCase('get_' + field)](conversion);
     if (typeof contents !== 'undefined'){
-      repack[f] = {value: contents};
+      repack[field] = {value: contents};
     }
   }
 
