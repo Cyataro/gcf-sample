@@ -205,12 +205,30 @@ function rePackage(conversion) {
  * @return {Object}
  */
 function ship(conversion) {
+  const kintone = require('kintone-nodejs-sdk');
+
   const packedConversion = rePackage(conversion)
 
+  console.log("===repack conversions===")
   console.log(packedConversion)
   console.log("===enviroment variables===")
   console.log(global.process.env.KINTONE_API_KEY)
+  console.log(global.process.env.KINTONE_APP_ID)
 
+  let kintoneAuth = new kintone.Auth();
+  kintoneAuth.setApiToken(global.process.env.KINTONE_API_KEY);
+
+  let kintoneConnection = new kintone.Connection(global.process.env.KINTONE_DOMAIN, kintoneAuth);
+  let kintoneRecord = new kintone.Record(kintoneConnection);
+  kintoneRecord.addRecord(global.process.env.KINTONE_APP_ID, JSON.stringify(packedConversion))
+    .then((rsp) => {
+        console.log(rsp);
+        return error_notification(rsp);
+    })
+    .catch((err) => {
+        // This SDK return err with KintoneAPIExeption
+        console.log(err.get());
+    });
 }
 
 /**
