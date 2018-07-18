@@ -227,7 +227,7 @@ function ship(conversion) {
     })
     .catch((err) => {
         // This SDK return err with KintoneAPIExeption
-        console.log(err.get());
+        console.log(err);
     });
 }
 
