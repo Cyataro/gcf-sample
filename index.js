@@ -222,7 +222,7 @@ function ship(conversion) {
 
   let kintoneConnection = new kintone.Connection(global.process.env.KINTONE_DOMAIN, kintoneAuth);
   let kintoneRecord = new kintone.Record(kintoneConnection);
-  kintoneRecord.addRecord(global.process.env.KINTONE_APP_ID, JSON.stringify(packedConversion))
+  kintoneRecord.addRecord(global.process.env.KINTONE_APP_ID, packedConversion)
     .then((rsp) => {
         console.log(rsp);
         return error_notification(rsp);
