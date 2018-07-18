@@ -33,7 +33,10 @@ const monitors = monitor => {
   }
 }
 
-const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
+const toLowerCamalCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUpperCase());
+const formatDateTime   = (date,time) => [date, time].filter(function(v){ return v !== ""}).join('T');
+const existy           = (data) => typeof data !== 'undefined' ? data : undefined;
+const transpose = (a) => a[0].map((_, c) => a.map(r => r[c]));
 const prefCodes = Array.from(new Array(47)).map((v,i)=> ('00' + (i + 1)).slice(-2))
 const prefNames = [
   "北海道",
@@ -86,29 +89,6 @@ const prefNames = [
 ]
 
 /**
- * download storage to dest
- * @param {string} bucketName
- * @param {string} srcFilename
- * @param {string} destFilename
- * @return {Object}
- */
-function downloadFile(bucketName, srcFilename, destFilename) {
-  const Storage = require('@google-cloud/storage');
-  const storage = new Storage({keyfile: 'gcloud-service-key.json'});
-
-  return  storage
-            .bucket(bucketName)
-            .file(srcFilename)
-            .download()
-            .then(conversion => {
-              return ship(JSON.parse(conversion));
-            })
-            .catch(err => {
-              console.error('ERROR:', err);
-            });
-}
-
-/**
  * @param {String} category
  * @return {String}
  */
@@ -130,84 +110,268 @@ function toPrefName(prefCode) {
 }
 
 /**
+ * @param {Array} companies
+ * @return {Array}
+ */
+function companyTable(companies) {
+  let c = [];
+  for (const company of companies) {
+    c.push({ value: {
+      company_code: { value: company.code },
+      company_name: { value: company.name }
+    }});
+  }
+  return c; 
+}
+
+const getConversionContents = {
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getConversionId: (c) => { existy(c.tag.conversion_id);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getRequestDate: (c) => {
+    if (typeof c.tag.request_date === 'undefined') {
+      return undefined;
+    }
+    return c.tag.request_date.split('T')[0];
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getRequestType: (c) => {
+    if (typeof c.tag.category === 'undefined') {
+      return undefined;
+    }
+    return toCategoryName(conversion.tag.category);
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getConfirmId: (c) => { return existy(c.tag.confirm_id);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getUserName: (c) => { return existy(c.contents.name);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getUserKana: (c) => { return existy(c.contents.kana || c.contents.yomigana);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getUserZipCode: (c) => { return existy(c.contents.zip);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getUserAddress: (c) => {
+    if (typeof c.contents.pref === 'undefined' && typeof c.contents.addr === 'undefined') {
+      return undefined;
+    }
+    return `${toPrefName(c.contents.pref)}${c.contents.addr}`;
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getUserTel: (c) => {return existy(c.contents.tel);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getUserEmail: (c) => {return existy(c.contents.email);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getReservedDate01: (c) => {
+    if (typeof c.contents.prefered_date === 'undefined' && typeof c.contents.prefered_date1 === 'undefined') {
+      return undefined;
+    }
+    return formatDateTime((c.contents.prefered_date || c.contents.prefered_date1), (c.contents.prefered_time || c.contents.prefered_time1));
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getReservedDate02: (c) => {
+    if (typeof c.contents.prefered_date2 === 'undefined') {
+      return undefined;
+    }
+    return formatDateTime(c.contents.prefered_date2, c.contents.prefered_time2);
+  },
+/**
+ * @param {Object} c
+ * @return {Array} or undefined
+ */
+  getCompany: (c) => {
+    if (typeof c.contents.company === 'undefined' && typeof c.contents.companies === 'undefined') {
+      return undefined;
+    } else if (typeof c.contents.companies !== 'undefined') {
+      return companyTable(c.contents.companies);
+    } else {
+      return companyTable([c.contents.company]);
+    }
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getEventAddress: (c) => {
+    if (typeof c.contents.event === 'undefined' && typeof c.contents.model_house === 'undefined') {
+      return undefined;
+    }
+    const e = c.contents.event || c.contents.model_house;
+    return e.addr;
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getEventCompanyName: (c) => {
+    if (typeof c.contents.company === 'undefined') {
+      return undefined;
+    }
+    return c.contents.company.name;
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getEventName: (c) => {
+    if (typeof c.contents.event === 'undefined' && typeof c.contents.model_house === 'undefined') {
+      return undefined;
+    } else if (typeof c.contents.model_house !== 'undefined') {
+      return c.contents.model_house.name;
+    } else {
+      return c.contents.event.prmword;
+    }
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionPlan: (c) => {return existy(c.contents.plan);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionPrefForBuild: (c) => {return existy(c.contents.pref_for_build);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionSchedule: (c) => {return existy(c.contents.schedule);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionBudget: (c) => {return existy(c.contents.budget);},
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionStatus: (c) => {
+    if (typeof c.contents.status === 'undefined') {
+      return undefined;
+    }
+    return [c.contents.status];
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionQuestions: (c) => {
+    if (typeof c.contents.questions === 'undefined') {
+      return undefined;
+    }
+    return c.contents.questions.split(',');
+  },
+/**
+ * @param {Object} c
+ * @return {String} or undefined
+ */
+  getQuestionMonitor: (c) => {
+    if (typeof c.contents.enq_coop === 'undefined') {
+      return undefined;
+    }
+    return monitors(c.contents.enq_coop);
+  }
+}
+
+//[field code, type]
+const kintoneFields = [
+  "conversion_id",
+  "request_date",
+  "request_type",
+  "confirm_id",
+  "user_name",
+  "user_kana",
+  "user_zip_code",
+  "user_address",
+  "user_tel",
+  "user_email",
+  "reserved_date_01",
+  "reserved_date_02",
+  "company",
+  "event_address",
+  "event_company_name",
+  "event_name",
+  "question_plan",
+  "question_pref_for_build",
+  "question_schedule",
+  "question_budget",
+  "question_status",
+  "question_questions",
+  "question_monitor"
+]
+
+/**
+ * download storage to dest
+ * @param {string} bucketName
+ * @param {string} srcFilename
+ * @param {string} destFilename
+ * @return {Object}
+ */
+function downloadFile(bucketName, srcFilename, destFilename) {
+  const Storage = require('@google-cloud/storage');
+  const storage = new Storage({keyfile: 'gcloud-service-key.json'});
+
+  return  storage
+            .bucket(bucketName)
+            .file(srcFilename)
+            .download()
+            .then(conversion => {
+              return kintoneUploader(JSON.parse(conversion));
+            })
+            .catch(err => {
+              console.error('ERROR:', err);
+            });
+}
+
+/**
  * repackage
  * @param {Json} conversion
  * @return {Hash}
  */
 function rePackage(conversion) {
-  let repack = {
-    conversion_id: { value: conversion.tag.conversion_id },
-    request_date:  { value: conversion.tag.request_date.split('T')[0] },
-    request_type:  { value: toCategoryName(conversion.tag.category) },
-    confirm_id:    { value: conversion.tag.confirm_id },
-    user_name:     { value: conversion.contents.name },
-    user_zip_code: { value: conversion.contents.zip },
-    user_address:  { value: `${toPrefName(conversion.contents.pref)}${conversion.contents.addr}` },
-    user_tel:      { value: conversion.contents.tel },
-    user_email:    { value: conversion.contents.email }
-  };
+  let repack = {};
 
-  //kana
-  repack.user_kana = { value: (conversion.contents.kana || conversion.contents.yomigana) }
-
-  //reserve date
-  if (typeof conversion.contents.prefered_date !== 'undefined') {
-    repack.reserved_date_01 = { value: [conversion.contents.prefered_date, conversion.contents.prefered_time].filter(function(v){ return v !== ""}).join('T')}
-  }
-  if (typeof conversion.contents.prefered_date1 !== 'undefined') {
-    repack.reserved_date_01 = { value: [conversion.contents.prefered_date1, conversion.contents.prefered_time1].filter(function(v){ return v !== ""}).join('T')}
-  }
-  if (typeof conversion.contents.prefered_date2 !== 'undefined') {
-    repack.reserved_date_02 = { value: [conversion.contents.prefered_date2, conversion.contents.prefered_time2].filter(function(v){ return v !== ""}).join('T')}
-  }
-
-  //reserve company
-  repack.company = {value: []};
-  if(typeof conversion.contents.companies !== 'undefined') {
-    for (const company of conversion.contents.companies) {
-      repack.company.value.push({ value: {
-        company_code: { value: company.code },
-        company_name: { value: company.name }
-      }});
+  for (const f of kintoneFields) {
+    const contents = getConversionContents[toLowerCamalCase('get_' + f)](conversion);
+    if (typeof contents !== 'undefined'){
+      repack[f] = {value: contents};
     }
-  } else if (typeof conversion.contents.company !== 'undefined') {
-    const company = conversion.contents.company
-    repack.company.value.push({ value: {
-      company_code: { value: company.code },
-      company_name: { value: company.name }
-    }});
-  }
-
-  //event 
-  if(typeof conversion.contents.event !== 'undefined') {
-    const event = conversion.contents.event;
-    repack.event_address      = { value: event.addr };
-    repack.event_company_name = { value: conversion.contents.company.name };
-    repack.event_name         = { value: event.prmword };
-  }
-
-  //model house
-  if(typeof conversion.contents.model_house !== 'undefined') {
-    const model_house = conversion.contents.model_house;
-    repack.event_address      = { value: model_house.addr };
-    repack.event_company_name = { value: conversion.contents.company.name };
-    repack.event_name         = { value: model_house.name };
-  }
-
-  //request of catalog
-  if(typeof conversion.contents.catalog_enquete !== 'undefined') {
-    const catalog_enquete = conversion.contents.catalog_enquete;
-    repack.question_plan           = { value: catalog_enquete.plan };
-    repack.question_pref_for_build = { value: catalog_enquete.pref_for_build };
-    repack.question_schedule       = { value: catalog_enquete.schedule };
-    repack.question_budget         = { value: catalog_enquete.badget };
-    repack.question_status         = { value: [catalog_enquete.status] };
-    repack.question_questions      = { value: catalog_enquete.questions.split(',') };
-  }
-
-  //common enquete
-  if(typeof conversion.contents.enq_coop !== 'undefined') {
-    repack.question_monitor = { value: monitors(conversion.contents.enq_coop) };
   }
 
   return repack;
@@ -218,7 +382,7 @@ function rePackage(conversion) {
  * @param {Json} contents
  * @return {Object}
  */
-function ship(conversion) {
+function kintoneUploader(conversion) {
   const kintone = require('kintone-nodejs-sdk');
 
   const packedConversion = rePackage(conversion)
