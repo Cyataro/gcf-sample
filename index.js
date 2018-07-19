@@ -485,9 +485,9 @@ exports.afterStoredConversion = (event, callback) => {
       })
       .catch(err => {
         console.error('ERROR:', err);
-        console.error('ERROR:', err.name);
+        console.error('ERROR:', err.constructor.name);
         console.error('ERROR:', err.get());
-        if (err.name === 'KintoneAPIException') {
+        if (err.constructor.name === 'KintoneAPIException') {
           const kintoneErr = err.get();
           if (kintoneErr.errors[record[conversion_id].value].message === '値がほかのレコードと重複しています。') {
             return updateStatus(sf, contents, 'complete');
