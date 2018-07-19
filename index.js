@@ -485,8 +485,7 @@ exports.afterStoredConversion = (event, callback) => {
       })
       .catch(err => {
         console.error('ERROR:', err);
-        console.error('ERROR:', typeof err);
-        console.error('ERROR:', toString(err));
+        console.error('ERROR:', err.KintoneAPIException);
         console.error('ERROR:', err.get());
         if (err instanceof KintoneAPIException) {
           const kintoneErr = err.get();
