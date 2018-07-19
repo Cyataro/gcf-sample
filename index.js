@@ -25,11 +25,6 @@ const monitors = (monitor) => {
 }
 
 /**
- * @param {String} message
- */
-const error_notification = (message) => console.log(message);
-
-/**
  * @param {String} str
  * @return {String}
  */
@@ -469,7 +464,7 @@ exports.afterStoredConversion = (event, callback) => {
   const file = event.data;
 
   if (file.resourceState === 'not_exists') {
-    error_notification('File ' + file.name + ' not_exists.');
+    console.log('File ' + file.name + ' not_exists.');
     return callback;
   } else {
     if (file.metageneration === '1') {
@@ -480,7 +475,7 @@ exports.afterStoredConversion = (event, callback) => {
 
       sf.download()
       .then(file => {
-        const contents = JSON.parse(file)
+        var contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
 
           const kintonePackage = toPackageForKintone(contents);
@@ -506,6 +501,7 @@ exports.afterStoredConversion = (event, callback) => {
             return updateStatus(sf, contents, 'complete');
           } else {
             console.error('KintoneAPIException:', kintoneErr);
+            return false;
           }
         } else {
           console.error('ERROR:', err);
@@ -513,7 +509,7 @@ exports.afterStoredConversion = (event, callback) => {
       });
 
     } else {
-      error_notification('File ' + file.name + ' metadata updated.');
+      console.log('File ' + file.name + ' metadata updated.');
       return callback;
     }
   }
