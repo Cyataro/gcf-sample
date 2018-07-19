@@ -460,9 +460,9 @@ exports.afterStoredConversion = (event, callback) => {
 
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
-      const storageFile = storageFile(file.bucket, file.name);
+      const sf = storageFile(file.bucket, file.name);
 
-      storageFile.download()
+      sf.download()
       .then(file => {
         const contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
