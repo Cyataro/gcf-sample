@@ -375,7 +375,7 @@ const updateStatus = (file, contents, status) => {
   let c = contents;
   c.tag.status = status;
   console.log(c);
-  return file.save(c);
+  return file.save(JSON.stringify(c));
 }
 
 /**
