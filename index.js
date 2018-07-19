@@ -484,7 +484,16 @@ exports.afterStoredConversion = (event, callback) => {
         return console.log(res);
       })
       .catch(err => {
-        console.error('ERROR:', err);
+        if (err === KintoneAPIException) {
+          const kintoneErr = err.get();
+          if (kintoneErr.errors[record[conversion_id].value].message === '値がほかのレコードと重複しています。') {
+            return updateStatus(storageFile, contents, 'complete');
+          } else {
+            console.error('KintoneAPIException:', err.get());
+          }
+        } else {
+          console.error('ERROR:', err);
+        }
       });
 
     } else {
