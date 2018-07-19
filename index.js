@@ -433,7 +433,7 @@ exports.afterStoredConversion = (event, callback) => {
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
       //test
-      f = downloadStorageFile(file.bucket, file.name);
+      const f = downloadStorageFile(file.bucket, file.name);
       f.then(file => {
         const contents = JSON.parse(file)
         return kintoneUploader(contents);
