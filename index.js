@@ -33,8 +33,9 @@ const error_notification = (message) => console.log(message);
  * @param {String} str
  * @return {String}
  */
-const toLowerCamalCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUpperCase());
+const toLowerCamelCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUpperCase());
 /**
+ * 20xx-xx-xxT00:00:00
  * @param {String} date
  * @param {String} time
  * @return {String}
@@ -46,6 +47,7 @@ const formatDateTime   = (date,time) => [date, time].filter(function(v){ return 
  */
 const existy           = (data) => typeof data !== 'undefined' ? data : undefined;
 /**
+ * [[a],[b]] => [a=>b]
  * @param {Array} a
  * @return {Array}
  */
@@ -387,7 +389,7 @@ const rePackage = (conversion) => {
   let repack = {};
 
   for (const field of kintoneFields) {
-    const contents = conversionContents[toLowerCamalCase('get_' + field)](conversion);
+    const contents = conversionContents[toLowerCamelCase('get_' + field)](conversion);
     if (typeof contents !== 'undefined'){
       repack[field] = {value: contents};
     }
