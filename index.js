@@ -478,16 +478,16 @@ exports.afterStoredConversion = (event, callback) => {
       .then(rsp => {
         successNotification(`Kintone registration is complete. record:${rsp.id}`);
 
-        return updateStatus(storageFile, contents, 'complete');
+        return updateStatus(sf, contents, 'complete');
       })
       .then(res => {
         return console.log(res);
       })
       .catch(err => {
-        if (err === KintoneAPIException) {
+        if (err instanceof KintoneAPIException) {
           const kintoneErr = err.get();
           if (kintoneErr.errors[record[conversion_id].value].message === '値がほかのレコードと重複しています。') {
-            return updateStatus(storageFile, contents, 'complete');
+            return updateStatus(sf, contents, 'complete');
           } else {
             console.error('KintoneAPIException:', err.get());
           }
