@@ -472,10 +472,10 @@ exports.afterStoredConversion = (event, callback) => {
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
       const sf = storageFile(file.bucket, file.name);
-
+      var contents;
       sf.download()
       .then(file => {
-        var contents = JSON.parse(file)
+        contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
 
           const kintonePackage = toPackageForKintone(contents);
