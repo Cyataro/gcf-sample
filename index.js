@@ -393,15 +393,13 @@ const toPackageForKintone = (conversion) => {
 
 const successNotification = (message) => {
   const request = require('request');
+  console.log(message);
+  console.log(global.process.env.GOOGLE_CHAT_WEBHOOK_URL);
 
   request.post({
     url: global.process.env.GOOGLE_CHAT_WEBHOOK_URL,
-    headers: {
-      'Content-Type':'application/json'
-    },
-    json: true,
     body: JSON.stringify({text: message})
-  }, function (error, response, body) {
+    }, function (error, response, body) {
     console.log(body);
   });
 }
