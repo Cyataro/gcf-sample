@@ -363,14 +363,24 @@ const kintoneFields = [
  * @param {string} file
  * @return {Object}
  */
-const downloadStorageFile = (bucket, file) => {
+const storageFile = (bucket, file) => {
   const Storage = require('@google-cloud/storage');
   const storage = new Storage({keyfile: 'gcloud-service-key.json'});
 
-  return  storage
-            .bucket(bucket)
-            .file(file)
-            .download()
+  return storage.bucket(bucket).file(file)
+}
+
+/**
+ * download storage file
+ * @param {string} bucket
+ * @param {string} file
+ * @return {Object}
+ */
+const updateStatus = (file, contents, status) => {
+  let c = contents;
+  c.tag.status = status;
+  console.log(c);
+  return file.save(c);
 }
 
 /**
@@ -391,16 +401,37 @@ const toPackageForKintone = (conversion) => {
   return repack;
 }
 
+/**
+ * notification to google chat
+ * @param {String} message
+ */
 const successNotification = (message) => {
   const request = require('request');
-  console.log(message);
-  console.log(global.process.env.GOOGLE_CHAT_WEBHOOK_URL);
 
   request.post({
     url: global.process.env.GOOGLE_CHAT_WEBHOOK_URL,
     body: JSON.stringify({text: message})
-    }, function (error, response, body) {
-    console.log(body);
+    }, (error, response, body) => {
+    console.log(error);
+  });
+}
+
+/**
+ * notification to slack
+ * @param {String} message
+ */
+const errorNotification = (message) => {
+  const request = require('request');
+
+  request.post({
+    url: global.process.env.SLACK_WEBHOOK_URL,
+    headers: { 'Content-Type': 'application/json' },
+    json: {
+      username: 'sample',
+      icon_emoji: ':ghost:',
+      text: message
+    }}, (error, response, body) => {
+    if (error) {console.log(error);}
   });
 }
 
@@ -429,8 +460,9 @@ exports.afterStoredConversion = (event, callback) => {
 
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
+      const storageFile = storageFile(file.bucket, file.name);
 
-      downloadStorageFile(file.bucket, file.name)
+      storageFile.download()
       .then(file => {
         const contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
@@ -443,9 +475,13 @@ exports.afterStoredConversion = (event, callback) => {
         }
         return true;
       })
-      .then( rsp =>{
-        console.log(rsp);
-        return successNotification(`Kintone registration is complete. record:${rsp.id}`);
+      .then(rsp => {
+        successNotification(`Kintone registration is complete. record:${rsp.id}`);
+
+        return updateStatus(storageFile, contents, 'complete');
+      })
+      .then(res => {
+        return console.log(res);
       })
       .catch(err => {
         console.error('ERROR:', err);
