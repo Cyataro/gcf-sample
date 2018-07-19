@@ -358,26 +358,19 @@ const kintoneFields = [
 ]
 
 /**
- * download storage to dest
- * @param {string} bucketName
- * @param {string} srcFilename
- * @param {string} destFilename
+ * download storage file
+ * @param {string} bucket
+ * @param {string} file
  * @return {Object}
  */
-const downloadFile = (bucketName, srcFilename, destFilename) => {
+const downloadStorageFile = (bucket, file) => {
   const Storage = require('@google-cloud/storage');
   const storage = new Storage({keyfile: 'gcloud-service-key.json'});
 
   return  storage
-            .bucket(bucketName)
-            .file(srcFilename)
+            .bucket(bucket)
+            .file(file)
             .download()
-            .then(conversion => {
-              return kintoneUploader(JSON.parse(conversion));
-            })
-            .catch(err => {
-              console.error('ERROR:', err);
-            });
 }
 
 /**
@@ -427,7 +420,7 @@ const kintoneUploader = (conversion) => {
     });
 }
 
-exports.subscribe = (event, callback) => {
+exports.afterStoredConversion = (event, callback) => {
   const file = event.data;
 
   if (file.resourceState === 'not_exists') {
@@ -440,7 +433,14 @@ exports.subscribe = (event, callback) => {
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
       //test
-      downloadFile(file.bucket, file.name, destFile);
+      f = downloadStorageFile(file.bucket, file.name);
+      f.then(file => {
+        const contents = JSON.parse(file)
+        return kintoneUploader(contents);
+      })
+      .catch(err => {
+        console.error('ERROR:', err);
+      });
 
     } else {
       error_notification('File ' + file.name + ' metadata updated.');
