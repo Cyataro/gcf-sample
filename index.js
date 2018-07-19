@@ -449,6 +449,22 @@ const kintoneRecordClient = () => {
   return new kintone.Record(kintoneConnection);
 }
 
+/**
+ * ship to other
+ * @return {Object}
+ */
+const isKintoneException = (err) => {
+  return typeof err.constructor !== 'undefined' && err.constructor.name === 'KintoneAPIException';
+}
+
+/**
+ * ship to other
+ * @return {Object}
+ */
+const isRecordDuplicate = (err) => {
+  return typeof err['record.conversion_id.value'] !== 'undefined' && err['record.conversion_id.value'].message === '値がほかのレコードと重複しています。';
+}
+
 exports.afterStoredConversion = (event, callback) => {
   const file = event.data;
 
@@ -484,15 +500,12 @@ exports.afterStoredConversion = (event, callback) => {
         return console.log(res);
       })
       .catch(err => {
-        console.error('ERROR:', err);
-        console.error('ERROR:', err.constructor.name);
-        console.error('ERROR:', err.get());
-        if (err.constructor.name === 'KintoneAPIException') {
+        if (isKintoneException(err)) {
           const kintoneErr = err.get();
-          if (kintoneErr.errors[record[conversion_id].value].message === '値がほかのレコードと重複しています。') {
+          if (isRecordDuplicate(kintoneErr.errors)) {
             return updateStatus(sf, contents, 'complete');
           } else {
-            console.error('KintoneAPIException:', err.get());
+            console.error('KintoneAPIException:', kintoneErr);
           }
         } else {
           console.error('ERROR:', err);
