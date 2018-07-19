@@ -470,6 +470,7 @@ exports.afterStoredConversion = (event, callback) => {
     if (file.metageneration === '1') {
 
       console.log(`bucket: ${file.bucket}`);
+      console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
       const sf = storageFile(file.bucket, file.name);
       var contents;
