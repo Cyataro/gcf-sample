@@ -374,11 +374,11 @@ const downloadStorageFile = (bucket, file) => {
 }
 
 /**
- * repackage
+ * toPackageForKintone
  * @param {Json} conversion
  * @return {Hash}
  */
-const rePackage = (conversion) => {
+const toPackageForKintone = (conversion) => {
   let repack = {};
 
   for (const field of kintoneFields) {
@@ -391,33 +391,33 @@ const rePackage = (conversion) => {
   return repack;
 }
 
+const successNotification = (message) => {
+  const request = require('request');
+
+  request.post({
+    url: global.process.env.GOOGLE_CHAT_WEBHOOK_URL,
+    headers: {
+      'Content-Type':'application/json'
+    },
+    json: true,
+    body: JSON.stringify({text: message})
+  }, function (error, response, body) {
+    console.log(body);
+  });
+}
+
 /**
  * ship to other
- * @param {Json} conversion
  * @return {Object}
  */
-const kintoneUploader = (conversion) => {
+const kintoneRecordClient = () => {
   const kintone = require('kintone-nodejs-sdk');
-
-  const packedConversion = rePackage(conversion)
-
-  console.log("===repack conversions===")
-  console.log(packedConversion)
 
   let kintoneAuth = new kintone.Auth();
   kintoneAuth.setApiToken(global.process.env.KINTONE_API_KEY);
 
   let kintoneConnection = new kintone.Connection(global.process.env.KINTONE_DOMAIN, kintoneAuth);
-  let kintoneRecord = new kintone.Record(kintoneConnection);
-  kintoneRecord.addRecord(global.process.env.KINTONE_APP_ID, packedConversion)
-    .then((rsp) => {
-        console.log(rsp);
-        return error_notification(rsp);
-    })
-    .catch((err) => {
-        // This SDK return err with KintoneAPIExeption
-        console.log(err.get());
-    });
+  return new kintone.Record(kintoneConnection);
 }
 
 exports.afterStoredConversion = (event, callback) => {
@@ -428,15 +428,26 @@ exports.afterStoredConversion = (event, callback) => {
     return callback;
   } else {
     if (file.metageneration === '1') {
-      const destFile = `/temp/${file.name}`;
 
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
-      //test
-      const f = downloadStorageFile(file.bucket, file.name);
-      f.then(file => {
+
+      downloadStorageFile(file.bucket, file.name)
+      .then(file => {
         const contents = JSON.parse(file)
-        return kintoneUploader(contents);
+        if (contents.tag.status === 'create') {
+
+          const kintonePackage = toPackageForKintone(contents);
+          console.log("===kintone package===")
+          console.log(kintonePackage)
+
+          return kintoneRecordClient().addRecord(global.process.env.KINTONE_APP_ID, toPackageForKintone(contents));
+        }
+        return true;
+      })
+      .then( rsp =>{
+        console.log(rsp);
+        return successNotification(`Kintone registration is complete. record:${rsp.id}`);
       })
       .catch(err => {
         console.error('ERROR:', err);
