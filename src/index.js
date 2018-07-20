@@ -19,7 +19,7 @@ const kintonePackager = require('./kintone/packager');
  * @return {Object}
  */
 const storageFile = (bucket, file) => {
-  const storage = new Storage({keyfile: 'gcloud-service-key.json'});
+  const storage = new cloudStorage({keyfile: 'gcloud-service-key.json'});
 
   return storage.bucket(bucket).file(file);
 }
