@@ -11,7 +11,6 @@ const cloudStorage = require('@google-cloud/storage');
 const kintoneClient = require('./kintone/client');
 const kintonePackager = require('./kintone/packager');
 
-const storage = () => new cloudStorage({keyfile: 'gcloud-service-key.json'});
 
 /**
  * download storage file
@@ -20,6 +19,8 @@ const storage = () => new cloudStorage({keyfile: 'gcloud-service-key.json'});
  * @return {Object}
  */
 const storageFile = (bucket, file) => {
+  const storage = new Storage({keyfile: 'gcloud-service-key.json'});
+
   return storage.bucket(bucket).file(file);
 }
 
@@ -31,7 +32,7 @@ const storageFile = (bucket, file) => {
  * @return {Object}
  */
 const copyFile = (from, to, fileName) => {
-  return storageFile(from, fileName).copy(storage.bucket(to).file(fileName));
+  return storageFile(from, fileName).copy(storageFile(to, fileName));
 }
 
 /**
