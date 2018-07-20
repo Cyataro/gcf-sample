@@ -7,7 +7,7 @@
 
 'use strict';
 
-const kintoneClient = require('./src/kintone');
+const kintoneClient = require('./kintone');
 
 /**
  * download storage file

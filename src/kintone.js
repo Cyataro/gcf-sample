@@ -400,7 +400,7 @@ const isRecordDuplicate = (err) => {
   return typeof err['record.conversion_id.value'] !== 'undefined' && err['record.conversion_id.value'].message === '値がほかのレコードと重複しています。';
 }
 
-module.exports.isKintoneException = isKintoneException;
-module.exports.kintoneRecordClient = kintoneRecordClient;
-module.exports.toPackageForKintone = toPackageForKintone;
-module.exports.isRecordDuplicate = isRecordDuplicate;
+exports.isKintoneException = isKintoneException;
+exports.kintoneRecordClient = kintoneRecordClient;
+exports.toPackageForKintone = toPackageForKintone;
+exports.isRecordDuplicate = isRecordDuplicate;
