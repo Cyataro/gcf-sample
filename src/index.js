@@ -37,10 +37,10 @@ const toLowerCamelCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUp
  */
 const formatDateTime   = (date,time) => [date, time].filter(function(v){ return v !== ""}).join('T');
 /**
- * @param {Object} data
+ * @param {Object} contents
  * @return {Object} or undefined
  */
-const existy           = (data) => typeof data !== 'undefined' ? data : undefined;
+const isContentsExist  = (contents) => typeof contents !== 'undefined' ? contents : undefined;
 /**
  * [[a],[b]] => [a=>b]
  * @param {Array} a
@@ -143,7 +143,7 @@ const conversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getConversionId: (c) => {return existy(c.tag.conversion_id);},
+  getConversionId: (c) => {return isContentsExist(c.tag.conversion_id);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -168,22 +168,22 @@ const conversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getConfirmId: (c) => { return existy(c.tag.confirm_id);},
+  getConfirmId: (c) => { return isContentsExist(c.tag.confirm_id);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserName: (c) => { return existy(c.contents.name);},
+  getUserName: (c) => { return isContentsExist(c.contents.name);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserKana: (c) => { return existy(c.contents.kana || c.contents.yomigana);},
+  getUserKana: (c) => { return isContentsExist(c.contents.kana || c.contents.yomigana);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserZipCode: (c) => { return existy(c.contents.zip);},
+  getUserZipCode: (c) => { return isContentsExist(c.contents.zip);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -198,12 +198,12 @@ const conversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserTel: (c) => {return existy(c.contents.tel);},
+  getUserTel: (c) => {return isContentsExist(c.contents.tel);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserEmail: (c) => {return existy(c.contents.email);},
+  getUserEmail: (c) => {return isContentsExist(c.contents.email);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -275,22 +275,22 @@ const conversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionPlan: (c) => {return existy(c.contents.plan);},
+  getQuestionPlan: (c) => {return isContentsExist(c.contents.plan);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionPrefForBuild: (c) => {return existy(c.contents.pref_for_build);},
+  getQuestionPrefForBuild: (c) => {return isContentsExist(c.contents.pref_for_build);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionSchedule: (c) => {return existy(c.contents.schedule);},
+  getQuestionSchedule: (c) => {return isContentsExist(c.contents.schedule);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionBudget: (c) => {return existy(c.contents.budget);},
+  getQuestionBudget: (c) => {return isContentsExist(c.contents.budget);},
   /**
    * @param {Object} c
    * @return {String} or undefined
