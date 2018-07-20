@@ -15,7 +15,7 @@ const toLowerCamelCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUp
  * @param {String} time
  * @return {String}
  */
-const formatDateTime   = (date,time) => [date, time].filter(function(v){ return v !== ""}).join('T');
+const formatDateTime   = (date,time) => [date, time].filter((v) => { return v !== ""}).join('T');
 /**
  * @param {Object} contents
  * @return {Object} or undefined

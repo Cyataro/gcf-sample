@@ -82,10 +82,10 @@ exports.afterStoredConversion = (event, callback) => {
           }
         } else {
           notification.error(`Kintone forward error :${err}`);
-          console.error('ERROR:', err);
+          return console.error('ERROR:', err);
         }
       });
-
+      return true;
     } else {
       console.log('File ' + file.name + ' metadata updated.');
       return callback;
