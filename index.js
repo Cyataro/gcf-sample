@@ -375,7 +375,8 @@ const updateStatus = (file, contents, status) => {
   let c = contents;
   c.tag.status = status;
   console.log(c);
-  return file.save(JSON.stringify(c));
+  //return file.save(JSON.stringify(c));
+  return true;
 }
 
 /**
@@ -461,6 +462,9 @@ const isRecordDuplicate = (err) => {
 }
 
 exports.afterStoredConversion = (event, callback) => {
+
+  console.log(event);
+  console.log(event.data);
   const file = event.data;
 
   if (file.resourceState === 'not_exists') {
