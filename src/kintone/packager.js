@@ -370,37 +370,4 @@ const toPackageForKintone = (conversion) => {
   return repack;
 }
 
-/**
- * ship to other
- * @return {Object}
- */
-const kintoneRecordClient = () => {
-  const kintone = require('kintone-nodejs-sdk');
-
-  let kintoneAuth = new kintone.Auth();
-  kintoneAuth.setApiToken(global.process.env.KINTONE_API_KEY);
-
-  let kintoneConnection = new kintone.Connection(global.process.env.KINTONE_DOMAIN, kintoneAuth);
-  return new kintone.Record(kintoneConnection);
-}
-
-/**
- * ship to other
- * @return {Object}
- */
-const isKintoneException = (err) => {
-  return typeof err.constructor !== 'undefined' && err.constructor.name === 'KintoneAPIException';
-}
-
-/**
- * ship to other
- * @return {Object}
- */
-const isRecordDuplicate = (err) => {
-  return typeof err['record.conversion_id.value'] !== 'undefined' && err['record.conversion_id.value'].message === '値がほかのレコードと重複しています。';
-}
-
-exports.isKintoneException = isKintoneException;
-exports.kintoneRecordClient = kintoneRecordClient;
 exports.toPackageForKintone = toPackageForKintone;
-exports.isRecordDuplicate = isRecordDuplicate;

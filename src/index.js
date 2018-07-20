@@ -7,7 +7,8 @@
 
 'use strict';
 
-const kintoneClient = require('./kintone');
+const kintoneClient = require('./kintone/client');
+const kintonePackager = require('./kintone/packager');
 
 /**
  * download storage file
@@ -94,11 +95,11 @@ exports.afterStoredConversion = (event, callback) => {
         contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
 
-          const kintonePackage = kintoneClient.toPackageForKintone(contents);
+          const kintonePackage = kintonePackager.toPackage(contents);
           console.log("===kintone package===")
           console.log(kintonePackage)
 
-          return kintoneClient.kintoneRecordClient().addRecord(global.process.env.KINTONE_APP_ID, kintoneClient.toPackageForKintone(contents));
+          return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
         }
         return true;
       })
@@ -111,7 +112,7 @@ exports.afterStoredConversion = (event, callback) => {
         return console.log(res);
       })
       .catch(err => {
-        if (kintoneClient.isKintoneException(err)) {
+        if (kintoneClient.isException(err)) {
           const kintoneErr = err.get();
           if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
             return updateStatus(sf, contents, 'complete');
