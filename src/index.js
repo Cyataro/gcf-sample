@@ -7,8 +7,11 @@
 
 'use strict';
 
+const cloudStorage = require('@google-cloud/storage');
 const kintoneClient = require('./kintone/client');
 const kintonePackager = require('./kintone/packager');
+
+const storage = () => new cloudStorage({keyfile: 'gcloud-service-key.json'});
 
 /**
  * download storage file
@@ -17,24 +20,18 @@ const kintonePackager = require('./kintone/packager');
  * @return {Object}
  */
 const storageFile = (bucket, file) => {
-  const Storage = require('@google-cloud/storage');
-  const storage = new Storage({keyfile: 'gcloud-service-key.json'});
-
   return storage.bucket(bucket).file(file);
 }
 
 /**
  * download storage file
- * @param {string} bucket
- * @param {string} file
+ * @param {string} from
+ * @param {string} to
+ * @param {string} fileName
  * @return {Object}
  */
-const updateStatus = (file, contents, status) => {
-  let c = contents;
-  c.tag.status = status;
-  console.log(c);
-  //return file.save(JSON.stringify(c));
-  return true;
+const copyFile = (from, to, fileName) => {
+  return storageFile(from, fileName).copy(storage.bucket(to).file(fileName));
 }
 
 /**
@@ -74,9 +71,6 @@ const errorNotification = (message) => {
 
 
 exports.afterStoredConversion = (event, callback) => {
-  console.log(event);
-  console.log(event.data);
-  console.log(callback);
   const file = event.data;
 
   if (file.resourceState === 'not_exists') {
@@ -86,7 +80,6 @@ exports.afterStoredConversion = (event, callback) => {
     if (file.metageneration === '1') {
 
       console.log(`bucket: ${file.bucket}`);
-      console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
       const sf = storageFile(file.bucket, file.name);
       var contents;
@@ -94,11 +87,6 @@ exports.afterStoredConversion = (event, callback) => {
       .then(file => {
         contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
-
-          const kintonePackage = kintonePackager.toPackage(contents);
-          console.log("===kintone package===")
-          console.log(kintonePackage)
-
           return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
         }
         return true;
@@ -106,7 +94,7 @@ exports.afterStoredConversion = (event, callback) => {
       .then(rsp => {
         successNotification(`Kintone registration is complete. record:${rsp.id}`);
 
-        return updateStatus(sf, contents, 'complete');
+        return copyFile(file.bucket, global.process.env.GCS_BUCKET_COMP, file.name);
       })
       .then(res => {
         return console.log(res);
@@ -115,7 +103,7 @@ exports.afterStoredConversion = (event, callback) => {
         if (kintoneClient.isException(err)) {
           const kintoneErr = err.get();
           if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
-            return updateStatus(sf, contents, 'complete');
+            return copyFile(file.bucket, global.process.env.GCS_BUCKET_COMP, file.name);
           } else {
             console.error('KintoneAPIException:', kintoneErr);
             return false;
