@@ -465,6 +465,7 @@ exports.afterStoredConversion = (event, callback) => {
 
   console.log(event);
   console.log(event.data);
+  console.log(callback);
   const file = event.data;
 
   if (file.resourceState === 'not_exists') {
