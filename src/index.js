@@ -7,6 +7,7 @@
 
 'use strict';
 
+const kintoneClient = require('kintone');
 
 /**
  * download storage file
@@ -18,7 +19,7 @@ const storageFile = (bucket, file) => {
   const Storage = require('@google-cloud/storage');
   const storage = new Storage({keyfile: 'gcloud-service-key.json'});
 
-  return storage.bucket(bucket).file(file)
+  return storage.bucket(bucket).file(file);
 }
 
 /**
@@ -72,7 +73,6 @@ const errorNotification = (message) => {
 
 
 exports.afterStoredConversion = (event, callback) => {
-  const kintone = require('kintone.js');
   console.log(event);
   console.log(event.data);
   console.log(callback);
@@ -94,11 +94,11 @@ exports.afterStoredConversion = (event, callback) => {
         contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
 
-          const kintonePackage = kintone.toPackageForKintone(contents);
+          const kintonePackage = kintoneClient.toPackageForKintone(contents);
           console.log("===kintone package===")
           console.log(kintonePackage)
 
-          return kintoneRecordClient().addRecord(global.process.env.KINTONE_APP_ID, kintone.toPackageForKintone(contents));
+          return kintoneClient.kintoneRecordClient().addRecord(global.process.env.KINTONE_APP_ID, kintoneClient.toPackageForKintone(contents));
         }
         return true;
       })
@@ -111,9 +111,9 @@ exports.afterStoredConversion = (event, callback) => {
         return console.log(res);
       })
       .catch(err => {
-        if (kintone.isKintoneException(err)) {
+        if (kintoneClient.isKintoneException(err)) {
           const kintoneErr = err.get();
-          if (kintone.isRecordDuplicate(kintoneErr.errors)) {
+          if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
             return updateStatus(sf, contents, 'complete');
           } else {
             console.error('KintoneAPIException:', kintoneErr);
