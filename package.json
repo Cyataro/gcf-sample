@@ -19,6 +19,7 @@
     "sinon": "*",
     "watchify": "*"
   },
+  "main": "/src/index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --max-warnings=0 index.js",
     "start": "npm run shell",
