@@ -9,6 +9,7 @@
     "request": "^2.87.0"
   },
   "devDependencies": {
+    "cross-env": "^5.2.0",
     "eslint": "^4.13.1",
     "eslint-plugin-promise": "^3.6.0",
     "intelli-espower-loader": "*",
@@ -21,8 +22,8 @@
   },
   "main": "/src/index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint --max-warnings=0 index.js",
+    "lint": "NODE_ENV=test eslint --ext .js --ignore-pattern node_modules .",
     "start": "npm run shell",
-    "test": "mocha --require intelli-espower-loader --require babel-register --recursive test"
+    "test": "cross-env NODE_ENV=test mocha --require test/setup.js test/**/*.spec.js"
   }
 }
