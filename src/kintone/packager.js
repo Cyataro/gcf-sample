@@ -357,7 +357,7 @@ const kintoneFields = [
  * @param {Json} conversion
  * @return {Hash}
  */
-const toPackageForKintone = (conversion) => {
+const toPackage = (conversion) => {
   let repack = {};
 
   for (const field of kintoneFields) {
@@ -370,4 +370,4 @@ const toPackageForKintone = (conversion) => {
   return repack;
 }
 
-exports.toPackageForKintone = toPackageForKintone;
+exports.toPackage = toPackage;
