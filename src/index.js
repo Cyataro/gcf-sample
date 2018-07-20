@@ -7,9 +7,10 @@
 
 'use strict';
 
-const cloudStorage = require('@google-cloud/storage');
-const kintoneClient = require('./kintone/client');
+const cloudStorage    = require('@google-cloud/storage');
+const kintoneClient   = require('./kintone/client');
 const kintonePackager = require('./kintone/packager');
+const notification    = require('./notification');
 
 
 /**
@@ -35,42 +36,13 @@ const copyFile = (from, to, fileName) => {
   return storageFile(from, fileName).copy(storageFile(to, fileName));
 }
 
-/**
- * notification to google chat
- * @param {String} message
- */
-const successNotification = (message) => {
-  const request = require('request');
-
-  request.post({
-    url: global.process.env.GOOGLE_CHAT_WEBHOOK_URL,
-    body: JSON.stringify({text: message})
-    }, (error, response, body) => {
-    console.log(error);
-  });
-}
 
 /**
- * notification to slack
- * @param {String} message
+ * storage finalize
+ * @param {string} event
+ * @param {string} callback
+ * @return {Object}
  */
-const errorNotification = (message) => {
-  const request = require('request');
-
-  request.post({
-    url: global.process.env.SLACK_WEBHOOK_URL,
-    headers: { 'Content-Type': 'application/json' },
-    json: {
-      username: 'sample',
-      icon_emoji: ':ghost:',
-      text: message
-    }}, (error, response, body) => {
-    if (error) {console.log(error);}
-  });
-}
-
-
-
 exports.afterStoredConversion = (event, callback) => {
   const file = event.data;
 
@@ -82,18 +54,17 @@ exports.afterStoredConversion = (event, callback) => {
 
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
-      const sf = storageFile(file.bucket, file.name);
-      var contents;
-      sf.download()
+
+      storageFile(file.bucket, file.name).download()
       .then(file => {
-        contents = JSON.parse(file)
+        const contents = JSON.parse(file)
         if (contents.tag.status === 'create') {
           return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
         }
         return true;
       })
       .then(rsp => {
-        successNotification(`Kintone registration is complete. record:${rsp.id}`);
+        notification.success(`Kintone registration is complete. record:${rsp.id}`);
 
         return copyFile(file.bucket, global.process.env.GCS_BUCKET_COMP, file.name);
       })
@@ -110,6 +81,7 @@ exports.afterStoredConversion = (event, callback) => {
             return false;
           }
         } else {
+          notification.error(`Kintone forward error :${err}`);
           console.error('ERROR:', err);
         }
       });
