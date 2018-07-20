@@ -1,11 +1,10 @@
 /**
- * Generic background Cloud Function to be triggered by Cloud Storage.
- *
- * @param {object} event The Cloud Functions event.
- * @param {function} callback The callback function.
+ * for kintone post data packager
  */
 
 'use strict';
+
+const libCommon = require('../lib/common');
 
 const categories = {
   RequestsOfCatalog: "資料請求メール",
@@ -13,7 +12,13 @@ const categories = {
   ModelHouseReserve: "モデルハウス予約"
 }
 
-const monitors = (monitor) => {
+/**
+ * @param {String} category
+ * @return {String}
+ */
+const getCategoryName = (category) => categories[category];
+
+const getMonitorChoice = (monitor) => {
   switch (monitor) {
     case "読者モニターになる":
       return "可";
@@ -24,29 +29,6 @@ const monitors = (monitor) => {
   }
 }
 
-/**
- * @param {String} str
- * @return {String}
- */
-const toLowerCamelCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUpperCase());
-/**
- * 20xx-xx-xxT00:00:00
- * @param {String} date
- * @param {String} time
- * @return {String}
- */
-const formatDateTime   = (date,time) => [date, time].filter(function(v){ return v !== ""}).join('T');
-/**
- * @param {Object} contents
- * @return {Object} or undefined
- */
-const isContentsExist  = (contents) => typeof contents !== 'undefined' ? contents : undefined;
-/**
- * [[a],[b]] => [a=>b]
- * @param {Array} a
- * @return {Array}
- */
-const transpose = (a) => a[0].map((_, c) => a.map(r => r[c]));
 /**
  * @return {Array}
  */
@@ -105,18 +87,12 @@ const prefNames = [
 ]
 
 /**
- * @param {String} category
- * @return {String}
- */
-const toCategoryName = (category) => categories[category];
-
-/**
  * @param {String} prefCode
  * @return {String}
  */
-const toPrefName = (prefCode) => {
+const getPrefName = (prefCode) => {
   let prefs = {};
-  for(const pref of transpose([prefCodes, prefNames])){
+  for(const pref of libCommon.nestedArrayTranspose([prefCodes, prefNames])){
     prefs[pref[0]] = pref[1];
   }
 
@@ -124,6 +100,10 @@ const toPrefName = (prefCode) => {
 }
 
 /**
+ * change kintone table format
+ *   [{code: 'foo', name: 'bar'}]
+ *  =>
+ *   [{value:{company_code: {value: 'foo'}, company_name: {value: 'bar'}}}]
  * @param {Array} companies
  * @return {Array}
  */
@@ -143,7 +123,7 @@ const conversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getConversionId: (c) => {return isContentsExist(c.tag.conversion_id);},
+  getConversionId: (c) => {return libCommon.isContentsExist(c.tag.conversion_id);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -162,28 +142,28 @@ const conversionContents = {
     if (typeof c.tag.category === 'undefined') {
       return undefined;
     }
-    return toCategoryName(c.tag.category);
+    return getCategoryName(c.tag.category);
   },
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getConfirmId: (c) => { return isContentsExist(c.tag.confirm_id);},
+  getConfirmId: (c) => { return libCommon.isContentsExist(c.tag.confirm_id);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserName: (c) => { return isContentsExist(c.contents.name);},
+  getUserName: (c) => { return libCommon.isContentsExist(c.contents.name);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserKana: (c) => { return isContentsExist(c.contents.kana || c.contents.yomigana);},
+  getUserKana: (c) => { return libCommon.isContentsExist(c.contents.kana || c.contents.yomigana);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserZipCode: (c) => { return isContentsExist(c.contents.zip);},
+  getUserZipCode: (c) => { return libCommon.isContentsExist(c.contents.zip);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -192,18 +172,18 @@ const conversionContents = {
     if (typeof c.contents.pref === 'undefined' && typeof c.contents.addr === 'undefined') {
       return undefined;
     }
-    return `${toPrefName(c.contents.pref)}${c.contents.addr}`;
+    return `${getPrefName(c.contents.pref)}${c.contents.addr}`;
   },
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserTel: (c) => {return isContentsExist(c.contents.tel);},
+  getUserTel: (c) => {return libCommon.isContentsExist(c.contents.tel);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getUserEmail: (c) => {return isContentsExist(c.contents.email);},
+  getUserEmail: (c) => {return libCommon.isContentsExist(c.contents.email);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -212,7 +192,7 @@ const conversionContents = {
     if (typeof c.contents.prefered_date === 'undefined' && typeof c.contents.prefered_date1 === 'undefined') {
       return undefined;
     }
-    return formatDateTime((c.contents.prefered_date || c.contents.prefered_date1), (c.contents.prefered_time || c.contents.prefered_time1));
+    return libCommon.formatDateTime((c.contents.prefered_date || c.contents.prefered_date1), (c.contents.prefered_time || c.contents.prefered_time1));
   },
   /**
    * @param {Object} c
@@ -222,7 +202,7 @@ const conversionContents = {
     if (typeof c.contents.prefered_date2 === 'undefined') {
       return undefined;
     }
-    return formatDateTime(c.contents.prefered_date2, c.contents.prefered_time2);
+    return libCommon.formatDateTime(c.contents.prefered_date2, c.contents.prefered_time2);
   },
   /**
    * @param {Object} c
@@ -275,22 +255,22 @@ const conversionContents = {
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionPlan: (c) => {return isContentsExist(c.contents.plan);},
+  getQuestionPlan: (c) => {return libCommon.isContentsExist(c.contents.plan);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionPrefForBuild: (c) => {return isContentsExist(c.contents.pref_for_build);},
+  getQuestionPrefForBuild: (c) => {return libCommon.isContentsExist(c.contents.pref_for_build);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionSchedule: (c) => {return isContentsExist(c.contents.schedule);},
+  getQuestionSchedule: (c) => {return libCommon.isContentsExist(c.contents.schedule);},
   /**
    * @param {Object} c
    * @return {String} or undefined
    */
-  getQuestionBudget: (c) => {return isContentsExist(c.contents.budget);},
+  getQuestionBudget: (c) => {return libCommon.isContentsExist(c.contents.budget);},
   /**
    * @param {Object} c
    * @return {String} or undefined
@@ -319,7 +299,7 @@ const conversionContents = {
     if (typeof c.contents.enq_coop === 'undefined') {
       return undefined;
     }
-    return monitors(c.contents.enq_coop);
+    return getMonitorChoice(c.contents.enq_coop);
   }
 }
 
@@ -361,7 +341,7 @@ const toPackage = (conversion) => {
   let repack = {};
 
   for (const field of kintoneFields) {
-    const contents = conversionContents[toLowerCamelCase('get_' + field)](conversion);
+    const contents = conversionContents[libCommon.toLowerCamelCase('get_' + field)](conversion);
     if (typeof contents !== 'undefined'){
       repack[field] = {value: contents};
     }
@@ -370,4 +350,7 @@ const toPackage = (conversion) => {
   return repack;
 }
 
+exports.getMonitorChoice = getMonitorChoice;
+exports.getPrefName = getPrefName;
+exports.companyTable = companyTable;
 exports.toPackage = toPackage;
