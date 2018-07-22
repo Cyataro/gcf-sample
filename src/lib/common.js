@@ -4,6 +4,8 @@
 
 'use strict';
 
+var _ = require('lodash');
+
 /**
  * @param {String} str
  * @return {String}
@@ -27,8 +29,16 @@ const isContentsExist  = (contents) => typeof contents !== 'undefined' ? content
  * @return {Array}
  */
 const nestedArrayTranspose = (a) => a[0].map((_, c) => a.map(r => r[c]));
+/**
+ * [1,2,3,4]-[3,5] => [1,2,4]
+ * @param {Array} a
+ * @param {Array} b
+ * @return {Array}
+ */
+const subArray = (a,b) => _.difference(a, b);
 
 exports.toLowerCamelCase     = toLowerCamelCase;
 exports.formatDateTime       = formatDateTime;
 exports.isContentsExist      = isContentsExist;
 exports.nestedArrayTranspose = nestedArrayTranspose;
+exports.subArray             = subArray;

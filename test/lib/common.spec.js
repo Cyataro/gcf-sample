@@ -51,4 +51,15 @@ describe('common', () => {
       )
     });
   });
+  describe('subArray', () => {
+    it('has a and b', () => {
+      assert.deepEqual(libCommon.subArray(['1','2','3'], ['2']), ['1','3']);
+    });
+    it('b is empty', () => {
+      assert.deepEqual(libCommon.subArray(['1','2','3'], []), ['1','2','3']);
+    });
+    it('a is empty', () => {
+      assert.deepEqual(libCommon.subArray([], ['1','2','3']), []);
+    });
+  });
 });
