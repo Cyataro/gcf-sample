@@ -64,7 +64,7 @@ exports.afterStoredConversion = (event, callback) => {
   .then(results => {
     const files = results[0];
 
-    console.log("bucket files results");
+    console.log("bucket1 files results");
     console.log(results);
     console.log(files);
     arr1 = files;
@@ -73,11 +73,12 @@ exports.afterStoredConversion = (event, callback) => {
   .then((comp) => {
     const files = comp[0];
 
-    console.log("bucket files results");
+    console.log("bucket2 files results");
     console.log(comp);
     console.log(files);
     arr2 = files;
 
+    console.log("===sub buckets===");
     console.log(libCommon.subArray(arr1, arr2));
 
     return true;
