@@ -14,15 +14,26 @@ describe('common', () => {
       assert.deepEqual(libCommon.toLowerCamelCase('foo_bar_'), 'fooBar_');
     });
   });
+  describe('timeZone', () => {
+    it('time is undefined', () => {
+      assert.deepEqual(libCommon.timeZone(undefined), '');
+    });
+    it('time is empty', () => {
+      assert.deepEqual(libCommon.timeZone(''), '');
+    });
+    it('time is exist', () => {
+      assert.deepEqual(libCommon.timeZone('10:00:00'), '10:00:00+09:00');
+    });
+  });
   describe('formatDateTime', () => {
     it('strign date + T + time', () => {
-      assert.deepEqual(libCommon.formatDateTime('2018-07-01','10:00:00'), '2018-07-01T10:00:00');
+      assert.deepEqual(libCommon.formatDateTime('2018-07-01','10:00:00'), '2018-07-01T10:00:00+09:00');
     });
     it('time is none', () => {
       assert.deepEqual(libCommon.formatDateTime('2018-07-01',''), '2018-07-01');
     });
     it('date is none', () => {
-      assert.deepEqual(libCommon.formatDateTime('','10:00:00'), '10:00:00');
+      assert.deepEqual(libCommon.formatDateTime('','10:00:00'), '10:00:00+09:00');
     });
     it('date and time is none', () => {
       assert.deepEqual(libCommon.formatDateTime('',''), '');

@@ -286,7 +286,7 @@ const conversionContents = {
    * @return {String} or undefined
    */
   getQuestionQuestions: (c) => {
-    if (typeof c.contents.questions === 'undefined') {
+    if (typeof c.contents.questions === 'undefined' || c.contents.questions === "") {
       return undefined;
     }
     return c.contents.questions.split(',');

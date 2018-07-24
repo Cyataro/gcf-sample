@@ -38,14 +38,151 @@ const copyFile = (from, to, fileName) => {
 }
 
 /**
- * bucket file lists
- * @param {string} bucket
+ * @param {String} msg
+ * @param {Object} e
+ */
+const log_error = (msg, e) => {
+  notification.error(`${msg} ${JSON.stringify(e)}`);
+  console.error(msg, e);
+}
+
+/**
+ * @param {String} bucket
  * @return {Object}
  */
 const bucketFiles = (bucket) => {
   const storage = new cloudStorage({keyfile: 'gcloud-service-key.json'});
-
   return storage.bucket(bucket).getFiles();
+}
+
+/**
+ * @param {String} bucket
+ * @param {String} file
+ * @param {Obuject} callback
+ */
+const upload = (bucket, file, callback) => {
+  storageFile(bucket, file).download()
+  .then(file => {
+    const contents = JSON.parse(file)
+
+    return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
+  })
+  .then(rsp => {
+    notification.success(`Kintoneへの登録完了しました. record:${rsp.id}`);
+
+    return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+  })
+  .then(res => {
+    console.log(res)
+    return callback();
+  })
+  .catch(err => {
+    if (kintoneClient.isException(err)) {
+      const kintoneErr = err.get();
+      if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
+        log_error(`conversion_id duplicate!!! : ${file} :`, kintoneErr);
+        return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+      } else {
+        log_error('KintoneAPIException :', kintoneErr);
+        return callback();
+      }
+    } else {
+      log_error('ERROR :', err);
+      return callback();
+    }
+  });
+}
+
+const uploads = (bucket, files) => {
+  var count = 0;
+
+  return new Promise((resolve) => {
+    var recursiveUpload = (file) => {
+      new Promise((resolve) => {
+        console.log(`process file : ${files[count]}`);
+        storageFile(bucket, file).download()
+        .then(file => {
+          const contents = JSON.parse(file)
+      
+          return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
+        })
+        .then(rsp => {
+          notification.success(`Kintoneへの登録完了しました. record:${rsp.id}`);
+      
+          return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+        })
+        .then(() => {
+          console.log(`process complete!!`);
+          count++;
+          if (count >= files.length) { 
+            return resolve(true);
+          } else {
+            return recursiveUpload(files[count]);
+          }
+        })
+        .catch(err => {
+          if (kintoneClient.isException(err)) {
+            const kintoneErr = err.get();
+            if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
+              log_error(`conversion_id duplicate!!! : ${file} :`, kintoneErr);
+              return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+            } else {
+              log_error('KintoneAPIException :', kintoneErr);
+            }
+          } else {
+            log_error('ERROR :', err);
+          }
+        });
+      });
+    }
+    recursiveUpload(files[count]);
+  });
+}
+
+/**
+ * trigger pub / sub
+ * @param {string} event
+ * @param {string} callback
+ * @return {Object}
+ */
+exports.missingConversions = (event, callback) => {
+  const pubsubMessage = Buffer.from(event.data.data, 'base64').toString();
+
+  console.log(`PubSub message: ${pubsubMessage}`)
+
+  if (typeof global.process.env.KINTONE_IS_DOWN !== 'undefined') {
+    console.log(`kintone breaker is down!!!`);
+    return callback();
+  } else if (pubsubMessage !== 'dailyRetry') {
+    return callback();
+  } else {
+    var srcBucketFiles;
+    var dstBucketFiles;
+
+    console.log(`start resend conversions not registered in kintone`);
+
+    bucketFiles(global.process.env.GCS_BUCKET_SRC)
+    .then(files => {
+      srcBucketFiles = files[0].map((f)=> f.name);
+      console.log(`src get files: ${JSON.stringify(files[0])}`);
+      console.log(`src files: ${srcBucketFiles}`);
+
+      return bucketFiles(global.process.env.GCS_BUCKET_DEST)
+    })
+    .then(files => {
+      dstBucketFiles = files[0].map((f)=> f.name);
+      console.log(`dest get files: ${JSON.stringify(files[0])}`);
+      console.log(`dest files: ${dstBucketFiles}`);
+      return uploads(global.process.env.GCS_BUCKET_SRC, libCommon.subArray(srcBucketFiles, dstBucketFiles));
+    })
+    .then(rsp =>{
+      return console.log(`process end : ${rsp}`);
+    })
+    .catch(e => {
+      log_error('ERROR :', e);
+    })
+    return callback();
+  }
 }
 
 /**
@@ -54,80 +191,26 @@ const bucketFiles = (bucket) => {
  * @param {string} callback
  * @return {Object}
  */
-exports.afterStoredConversion = (event, callback) => {
+exports.storedConversion = (event, callback) => {
   const file = event.data;
 
-  var arr1;
-  var arr2;
-
-  bucketFiles(file.bucket)
-  .then(results => {
-    const files = results[0];
-
-    console.log("bucket1 files results");
-    console.log(results);
-    console.log(files);
-    arr1 = files;
-    return bucketFiles(global.process.env.GCS_BUCKET_COMP);
-  })
-  .then((comp) => {
-    const files = comp[0];
-
-    console.log("bucket2 files results");
-    console.log(comp);
-    console.log(files);
-    arr2 = files;
-
-    console.log("===sub buckets===");
-    console.log(libCommon.subArray(arr1, arr2));
-
-    return true;
-  })
-  .catch((err) => {
-    console.error(err);
-  });
-
-  if (file.resourceState === 'not_exists') {
+  if (typeof global.process.env.KINTONE_IS_DOWN !== 'undefined') {
+    console.log(`kintone breaker is down!!!`);
+    return callback();
+  } else if (file.resourceState === 'not_exists') {
     console.log('File ' + file.name + ' not_exists.');
-    return callback;
+    return callback();
   } else {
     if (file.metageneration === '1') {
 
       console.log(`bucket: ${file.bucket}`);
       console.log(`file: ${file.name}`);
 
-      storageFile(file.bucket, file.name).download()
-      .then(file => {
-        const contents = JSON.parse(file)
+      upload(file.bucket, file.name, callback);
 
-        return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
-      })
-      .then(rsp => {
-        notification.success(`Kintone registration is complete. record:${rsp.id}`);
-
-        return copyFile(file.bucket, global.process.env.GCS_BUCKET_COMP, file.name);
-      })
-      .then(res => {
-        return console.log(res);
-      })
-      .catch(err => {
-        if (kintoneClient.isException(err)) {
-          const kintoneErr = err.get();
-          if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
-            return copyFile(file.bucket, global.process.env.GCS_BUCKET_COMP, file.name);
-          } else {
-            console.error('KintoneAPIException:', kintoneErr);
-            return false;
-          }
-        } else {
-          notification.error(`Kintone forward error :${err}`);
-          return console.error('ERROR:', err);
-        }
-      });
-      return true;
+      return callback();
     } else {
-      console.log('File ' + file.name + ' metadata updated.');
-      return callback;
+      return callback();
     }
   }
 }

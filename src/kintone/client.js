@@ -29,11 +29,11 @@ const isException = (err) => {
 }
 
 /**
- * ship to other
- * @return {Object}
+ * 重複登録チェック
+ * @return {Boolean}
  */
 const isRecordDuplicate = (err) => {
-  return typeof err['record.conversion_id.value'] !== 'undefined' && err['record.conversion_id.value'].message === '値がほかのレコードと重複しています。';
+  return typeof err['record.conversion_id.value'] !== 'undefined' && err['record.conversion_id.value'].messages.includes('値がほかのレコードと重複しています。');
 }
 
 exports.isException = isException;

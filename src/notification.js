@@ -28,7 +28,7 @@ const error = (message) => {
     url: global.process.env.SLACK_WEBHOOK_URL,
     headers: { 'Content-Type': 'application/json' },
     json: {
-      username: 'sample',
+      username: 'ienavi-conversion-store',
       icon_emoji: ':ghost:',
       text: message
     }}, (error, response, body) => {

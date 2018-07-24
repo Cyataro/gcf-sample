@@ -12,12 +12,17 @@ const _ = require('lodash');
  */
 const toLowerCamelCase = (str) => str.replace(/(_)(.)/g, (s) => s.charAt(1).toUpperCase());
 /**
+ * @param {String} time
+ * @return {String}
+ */
+const timeZone = (time) => (typeof time !== 'undefined' && time !== '') ? `${time}+09:00` : "";
+/**
  * 20xx-xx-xxT00:00:00
  * @param {String} date
  * @param {String} time
  * @return {String}
  */
-const formatDateTime   = (date,time) => [date, time].filter((v) => { return v !== ""}).join('T');
+const formatDateTime   = (date,time) => [date, timeZone(time)].filter((v) => { return v !== ""}).join('T');
 /**
  * @param {Object} contents
  * @return {Object} or undefined
@@ -38,6 +43,7 @@ const nestedArrayTranspose = (a) => a[0].map((_, c) => a.map(r => r[c]));
 const subArray = (a,b) => _.difference(a, b);
 
 exports.toLowerCamelCase     = toLowerCamelCase;
+exports.timeZone             = timeZone;
 exports.formatDateTime       = formatDateTime;
 exports.isContentsExist      = isContentsExist;
 exports.nestedArrayTranspose = nestedArrayTranspose;
