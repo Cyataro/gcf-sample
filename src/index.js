@@ -93,46 +93,49 @@ const upload = (bucket, file, callback) => {
 
 const uploads = (bucket, files) => {
   var count = 0;
-
-  return new Promise((resolve) => {
-    var recursiveUpload = (file) => {
-      new Promise((resolve) => {
-        console.log(`process file : ${files[count]}`);
-        storageFile(bucket, file).download()
-        .then(file => {
-          const contents = JSON.parse(file)
-      
-          return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
-        })
-        .then(rsp => {
-          return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
-        })
-        .then(() => {
-          console.log(`process complete!!`);
-          count++;
-          if (count >= files.length) { 
-            return resolve(true);
-          } else {
-            return recursiveUpload(files[count]);
-          }
-        })
-        .catch(err => {
-          if (kintoneClient.isException(err)) {
-            const kintoneErr = err.get();
-            if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
-              log_error(`conversion_id duplicate!!! : ${file} :`, kintoneErr);
-              return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+  if (files.length > 0) {
+    return new Promise((resolve) => {
+      var recursiveUpload = (file) => {
+        new Promise((resolve) => {
+          console.log(`process file : ${files[count]}`);
+          storageFile(bucket, file).download()
+          .then(file => {
+            const contents = JSON.parse(file)
+          
+            return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
+          })
+          .then(rsp => {
+            return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+          })
+          .then(() => {
+            console.log(`process complete!!`);
+            count++;
+            if (count >= files.length) { 
+              return resolve(true);
             } else {
-              log_error('KintoneAPIException :', kintoneErr);
+              return recursiveUpload(files[count]);
             }
-          } else {
-            log_error('ERROR :', err);
-          }
+          })
+          .catch(err => {
+            if (kintoneClient.isException(err)) {
+              const kintoneErr = err.get();
+              if (kintoneClient.isRecordDuplicate(kintoneErr.errors)) {
+                log_error(`conversion_id duplicate!!! : ${file} :`, kintoneErr);
+                return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
+              } else {
+                log_error('KintoneAPIException :', kintoneErr);
+              }
+            } else {
+              log_error('ERROR :', err);
+            }
+          });
         });
-      });
-    }
-    recursiveUpload(files[count]);
-  });
+      }
+      recursiveUpload(files[count]);
+    });
+  } else {
+    return console.log(`not registered file is nothing`);
+  }
 }
 
 /**
