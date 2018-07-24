@@ -42,7 +42,7 @@ const copyFile = (from, to, fileName) => {
  * @param {Object} e
  */
 const log_error = (msg, e) => {
-  notification.error(`${msg} ${JSON.stringify(e)}`);
+  //notification.error(`${msg} ${JSON.stringify(e)}`);
   console.error(msg, e);
 }
 
@@ -68,8 +68,6 @@ const upload = (bucket, file, callback) => {
     return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
   })
   .then(rsp => {
-    notification.success(`Kintoneへの登録完了しました. record:${rsp.id}`);
-
     return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
   })
   .then(res => {
@@ -107,8 +105,6 @@ const uploads = (bucket, files) => {
           return kintoneClient.recordClient().addRecord(global.process.env.KINTONE_APP_ID, kintonePackager.toPackage(contents));
         })
         .then(rsp => {
-          notification.success(`Kintoneへの登録完了しました. record:${rsp.id}`);
-      
           return copyFile(bucket, global.process.env.GCS_BUCKET_DEST, file);
         })
         .then(() => {
